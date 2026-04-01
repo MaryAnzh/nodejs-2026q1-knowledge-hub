@@ -1,9 +1,10 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { v4 as uuidV4 } from "uuid";
 
-import type { UserType, UserPayloadType, UserUpdatePayloadType } from '../types';
+import type { UserType } from '../types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { VIEWER } from 'src/constants';
 
 @Injectable()
 export class UserService {
@@ -23,7 +24,7 @@ export class UserService {
             id: uuidV4(),
             login: dto.login,
             password: dto.password,
-            role: dto.role,
+            role: VIEWER,
             createdAt: now,
             updatedAt: now,
         };

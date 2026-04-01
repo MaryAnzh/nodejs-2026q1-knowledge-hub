@@ -1,3 +1,3 @@
 export const ROUTES = {
-    USERS: '/users',
+    USER: '/user',
 }
