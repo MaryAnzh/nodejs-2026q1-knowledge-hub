@@ -45,7 +45,7 @@ export class UserController {
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateUserDto,
-  ): T.UserType {
+  ) {
     const user = this.userService.update(id, dto);
     if (!user) {
       throw new NotFoundException(C.USER_NOT_FOUND);
