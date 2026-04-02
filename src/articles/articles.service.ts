@@ -4,13 +4,15 @@ import { ArticleType } from 'src/types';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { ARTICLES_STATUS } from 'src/constants';
+import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class ArticlesService {
-    private articles: ArticleType[] = [];
+
+    constructor(private readonly db: InMemoryDB) { }
 
     findAll(filters?: { status?: string; categoryId?: string; tag?: string }): ArticleType[] {
-        let result = [...this.articles];
+        let result = [...this.db.articles];
 
         if (filters?.status) {
             result = result.filter(a => a.status === filters.status);
@@ -28,7 +30,7 @@ export class ArticlesService {
     }
 
     findOne(id: string): ArticleType | null {
-        return this.articles.find(a => a.id === id) || null;
+        return this.db.articles.find(a => a.id === id) || null;
     }
 
     create(dto: CreateArticleDto): ArticleType {
@@ -46,7 +48,7 @@ export class ArticlesService {
             updatedAt: now,
         };
 
-        this.articles.push(article);
+        this.db.articles.push(article);
         return article;
     }
 
@@ -64,7 +66,9 @@ export class ArticlesService {
         const exists = this.findOne(id);
         if (!exists) return false;
 
-        this.articles = this.articles.filter(a => a.id !== id);
+        this.db.articles = this.db.articles.filter(a => a.id !== id);
+        this.db.comments = this.db.comments.filter(({ articleId }) => id !== articleId);
+
         return true;
     }
 }

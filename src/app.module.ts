@@ -3,10 +3,15 @@ import { ArticlesModule } from './articles/articles.module';
 import { CategoriesModule } from './categories/categories.module';
 import { CommentsModule } from './comments/comments.module';
 import { UserModule } from './user/user.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
-  imports: [ArticlesModule, CategoriesModule, CommentsModule, UserModule],
-  exports: [ArticlesModule, CategoriesModule, CommentsModule, UserModule],
+  imports: [
+    ArticlesModule,
+    CategoriesModule,
+    CommentsModule,
+    UserModule,
+    StorageModule],
 })
 export class AppModule {
   constructor() {

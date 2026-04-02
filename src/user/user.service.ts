@@ -8,17 +8,18 @@ import type { UserType } from '../types';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { omitFields } from 'src/utils/omitFields';
+import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class UserService {
-  private users: UserType[] = [];
+  constructor(private readonly db: InMemoryDB) { }
 
   findAll(): UserType[] {
-    return this.users;
+    return this.db.users;
   }
 
   findOne(id: string): UserType | null {
-    return this.users.find((user) => user.id === id) || null;
+    return this.db.users.find((user) => user.id === id) || null;
   }
 
   create(dto: CreateUserDto): Omit<UserType, 'password'> {
@@ -31,7 +32,7 @@ export class UserService {
       createdAt: now,
       updatedAt: now,
     };
-    this.users.push(user);
+    this.db.users.push(user);
     const safeUser = omitFields(user, ['password']);
     return safeUser;
   }
@@ -51,12 +52,17 @@ export class UserService {
   }
 
   remove(id: string): boolean {
-    const user = this.findOne(id);
-    if (!user) {
-      return false;
+    const exists = this.findOne(id);
+    if (!exists) return false;
+    this.db.users = this.db.users.filter(u => u.id !== id);
+    this.db.comments = this.db.comments.filter(({ authorId }) => authorId !== id);
+
+    for (const article of this.db.articles) {
+      if (article.authorId === id) {
+        article.authorId = null;
+      }
     }
 
-    this.users = this.users.filter((u) => u.id !== id);
     return true;
   }
 }
