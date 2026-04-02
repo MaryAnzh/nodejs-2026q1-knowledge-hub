@@ -20,7 +20,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   findAll(): T.UserType[] {
@@ -54,7 +54,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(C.DELETED_CODE)
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     const deleted = this.userService.remove(id);
     if (!deleted) {
