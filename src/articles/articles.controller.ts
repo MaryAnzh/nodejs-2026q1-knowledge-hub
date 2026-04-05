@@ -17,6 +17,11 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 
 import * as C from '../constants';
+import {
+  ArticleSortEntities,
+  ArticleSortType,
+  ArticleStatusType,
+} from 'src/types';
 
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
@@ -24,11 +29,41 @@ export class ArticlesController {
 
   @Get()
   getAll(
-    @Query('status') status?: string,
+    @Query('status') status?: ArticleStatusType,
     @Query('categoryId') categoryId?: string,
     @Query('tag') tag?: string,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: keyof ArticleSortEntities,
+    @Query('order') order?: ArticleSortType,
   ) {
+    if ((page && limit) || sortBy) {
+      return this.service.findAllWithQuery({
+        page: Number(page),
+        limit: Number(limit),
+        sortBy: sortBy,
+        order,
+        status,
+        categoryId,
+        tag,
+      });
+    }
     return this.service.findAll({ status, categoryId, tag });
+  }
+
+  @Get('paginated')
+  getPaginated(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('sortBy') sortBy?: keyof ArticleSortEntities,
+    @Query('order') order?: ArticleSortType,
+  ) {
+    return this.service.findAllWithQuery({
+      page: Number(page),
+      limit: Number(limit),
+      sortBy: sortBy,
+      order,
+    });
   }
 
   @Get(':id')
