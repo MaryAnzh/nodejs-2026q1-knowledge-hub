@@ -1,15 +1,14 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Delete,
-    Param,
-    Query,
-    Body,
-    BadRequestException,
-    NotFoundException,
-    UnprocessableEntityException,
-    HttpCode,
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Query,
+  Body,
+  BadRequestException,
+  NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
 import { validate as isUUID } from 'uuid';
 import { CommentsService } from './comments.service';
@@ -18,56 +17,54 @@ import * as C from 'src/constants';
 
 @Controller(C.ROUTES.COMMENT)
 export class CommentsController {
-    constructor(
-        private readonly commentsService: CommentsService,
-    ) { }
+  constructor(private readonly commentsService: CommentsService) {}
 
-    @Get()
-    getAll(@Query('articleId') articleId: string) {
-        if (!articleId) {
-            throw new BadRequestException('articleId is required');
-        }
-
-        if (!isUUID(articleId)) {
-            throw new BadRequestException();
-        }
-
-        return this.commentsService.findByArticle(articleId);
+  @Get()
+  getAll(@Query('articleId') articleId: string) {
+    if (!articleId) {
+      throw new BadRequestException('articleId is required');
     }
 
-    @Get(':id')
-    getById(@Param('id') id: string) {
-        if (!isUUID(id)) {
-            throw new BadRequestException();
-        }
-
-        const comment = this.commentsService.findOne(id);
-        if (!comment) {
-            throw new NotFoundException();
-        }
-
-        return comment;
+    if (!isUUID(articleId)) {
+      throw new BadRequestException();
     }
 
-    @Post()
-    create(@Body() dto: CreateCommentDto) {
-        if (!isUUID(dto.articleId)) {
-            throw new BadRequestException();
-        }
+    return this.commentsService.findByArticle(articleId);
+  }
 
-        return this.commentsService.create(dto);
+  @Get(':id')
+  getById(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException();
     }
 
-    @Delete(':id')
-    @HttpCode(C.DELETED_CODE)
-    delete(@Param('id') id: string) {
-        if (!isUUID(id)) {
-            throw new BadRequestException();
-        }
-
-        const ok = this.commentsService.remove(id);
-        if (!ok) {
-            throw new NotFoundException();
-        }
+    const comment = this.commentsService.findOne(id);
+    if (!comment) {
+      throw new NotFoundException();
     }
+
+    return comment;
+  }
+
+  @Post()
+  create(@Body() dto: CreateCommentDto) {
+    if (!isUUID(dto.articleId)) {
+      throw new BadRequestException();
+    }
+
+    return this.commentsService.create(dto);
+  }
+
+  @Delete(':id')
+  @HttpCode(C.DELETED_CODE)
+  delete(@Param('id') id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException();
+    }
+
+    const ok = this.commentsService.remove(id);
+    if (!ok) {
+      throw new NotFoundException();
+    }
+  }
 }

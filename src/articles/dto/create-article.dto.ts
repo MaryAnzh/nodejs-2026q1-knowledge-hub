@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, IsArray, IsUUID, IsIn } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsUUID, IsIn } from 'class-validator';
 import { ARTICLES_STATUS } from 'src/constants';
 import { ArticleStatusType } from 'src/types';
 

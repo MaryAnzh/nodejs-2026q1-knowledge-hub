@@ -8,4 +8,4 @@ import { StorageModule } from 'src/storage/storage.module';
   controllers: [CommentsController],
   providers: [CommentsService],
 })
-export class CommentsModule { }
+export class CommentsModule {}

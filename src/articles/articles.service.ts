@@ -8,67 +8,72 @@ import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class ArticlesService {
+  constructor(private readonly db: InMemoryDB) {}
 
-    constructor(private readonly db: InMemoryDB) { }
+  findAll(filters?: {
+    status?: string;
+    categoryId?: string;
+    tag?: string;
+  }): ArticleType[] {
+    let result = [...this.db.articles];
 
-    findAll(filters?: { status?: string; categoryId?: string; tag?: string }): ArticleType[] {
-        let result = [...this.db.articles];
-
-        if (filters?.status) {
-            result = result.filter(a => a.status === filters.status);
-        }
-
-        if (filters?.categoryId) {
-            result = result.filter(a => a.categoryId === filters.categoryId);
-        }
-
-        if (filters?.tag) {
-            result = result.filter(a => a.tags.includes(filters.tag));
-        }
-
-        return result;
+    if (filters?.status) {
+      result = result.filter((a) => a.status === filters.status);
     }
 
-    findOne(id: string): ArticleType | null {
-        return this.db.articles.find(a => a.id === id) || null;
+    if (filters?.categoryId) {
+      result = result.filter((a) => a.categoryId === filters.categoryId);
     }
 
-    create(dto: CreateArticleDto): ArticleType {
-        const now = Date.now();
-
-        const article: ArticleType = {
-            id: uuidV4(),
-            title: dto.title,
-            content: dto.content,
-            status: dto.status ?? ARTICLES_STATUS.DRAFT,
-            authorId: dto.authorId ?? null,
-            categoryId: dto.categoryId ?? null,
-            tags: dto.tags ?? [],
-            createdAt: now,
-            updatedAt: now,
-        };
-
-        this.db.articles.push(article);
-        return article;
+    if (filters?.tag) {
+      result = result.filter((a) => a.tags.includes(filters.tag));
     }
 
-    update(id: string, dto: UpdateArticleDto): ArticleType {
-        const article = this.findOne(id);
-        if (!article) throw new NotFoundException();
+    return result;
+  }
 
-        Object.assign(article, dto);
-        article.updatedAt = Date.now();
+  findOne(id: string): ArticleType | null {
+    return this.db.articles.find((a) => a.id === id) || null;
+  }
 
-        return article;
-    }
+  create(dto: CreateArticleDto): ArticleType {
+    const now = Date.now();
 
-    remove(id: string): boolean {
-        const exists = this.findOne(id);
-        if (!exists) return false;
+    const article: ArticleType = {
+      id: uuidV4(),
+      title: dto.title,
+      content: dto.content,
+      status: dto.status ?? ARTICLES_STATUS.DRAFT,
+      authorId: dto.authorId ?? null,
+      categoryId: dto.categoryId ?? null,
+      tags: dto.tags ?? [],
+      createdAt: now,
+      updatedAt: now,
+    };
 
-        this.db.articles = this.db.articles.filter(a => a.id !== id);
-        this.db.comments = this.db.comments.filter(({ articleId }) => id !== articleId);
+    this.db.articles.push(article);
+    return article;
+  }
 
-        return true;
-    }
+  update(id: string, dto: UpdateArticleDto): ArticleType {
+    const article = this.findOne(id);
+    if (!article) throw new NotFoundException();
+
+    Object.assign(article, dto);
+    article.updatedAt = Date.now();
+
+    return article;
+  }
+
+  remove(id: string): boolean {
+    const exists = this.findOne(id);
+    if (!exists) return false;
+
+    this.db.articles = this.db.articles.filter((a) => a.id !== id);
+    this.db.comments = this.db.comments.filter(
+      ({ articleId }) => id !== articleId,
+    );
+
+    return true;
+  }
 }

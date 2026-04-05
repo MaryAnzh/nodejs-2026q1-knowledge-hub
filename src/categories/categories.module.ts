@@ -8,4 +8,4 @@ import { StorageModule } from 'src/storage/storage.module';
   controllers: [CategoriesController],
   providers: [CategoriesService],
 })
-export class CategoriesModule { }
+export class CategoriesModule {}

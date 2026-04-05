@@ -1,14 +1,11 @@
 # Knowledge Hub
 
-## Prerequisites
-
-- Git - [Download & Install Git](https://git-scm.com/downloads).
-- Node.js - [Download & Install Node.js](https://nodejs.org/en/download/) and the npm package manager.
+For check task:
 
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/MaryAnzh/nodejs-2026q1-knowledge-hub.git
 ```
 
 ## Installing NPM modules
@@ -22,63 +19,29 @@ npm install
 ```
 npm start
 ```
+And you will see
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
+🚀 Server is running on http://localhost:4000
+📘 Swagger documentation is available at http://localhost:4000/doc
+
+After starting the app on port (4000) you can open
+in your browser OpenAPI documentation by typing http://localhost:4000/doc/
 
 ## Testing
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
+To run task test (users, articles, categories, comments)
 
 ```
-npm run test
+npm test -- users articles categories comments
 ```
+Test Suites: 4 passed, 4 total
+Tests:       58 passed, 58 total
 
-To run only one of all test suites
 
-```
-npm run test -- <path to suite>
-```
-
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
-To run refresh token tests
-
-```
-npm run test:refresh
-```
-
-To run RBAC (role-based access control) tests
-
-```
-npm run test:rbac
-```
-
-### Auto-fix and format
+### Lint check
 
 ```
 npm run lint
 ```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging

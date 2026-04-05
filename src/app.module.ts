@@ -11,7 +11,8 @@ import { StorageModule } from './storage/storage.module';
     CategoriesModule,
     CommentsModule,
     UserModule,
-    StorageModule],
+    StorageModule,
+  ],
 })
 export class AppModule {
   constructor() {

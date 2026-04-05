@@ -7,47 +7,47 @@ import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class CategoriesService {
-    constructor(private readonly db: InMemoryDB) { }
+  constructor(private readonly db: InMemoryDB) {}
 
-    findAll(): CategoryType[] {
-        return this.db.categories;
+  findAll(): CategoryType[] {
+    return this.db.categories;
+  }
+
+  findOne(id: string): CategoryType | null {
+    return this.db.categories.find((c) => c.id === id) || null;
+  }
+
+  create(dto: CreateCategoryDto): CategoryType {
+    const category: CategoryType = {
+      id: uuidV4(),
+      name: dto.name,
+      description: dto.description,
+    };
+
+    this.db.categories.push(category);
+    return category;
+  }
+
+  update(id: string, dto: UpdateCategoryDto): CategoryType {
+    const category = this.findOne(id);
+    if (!category) {
+      throw new NotFoundException();
     }
 
-    findOne(id: string): CategoryType | null {
-        return this.db.categories.find((c) => c.id === id) || null;
-    }
+    Object.assign(category, dto);
+    return category;
+  }
 
-    create(dto: CreateCategoryDto): CategoryType {
-        const category: CategoryType = {
-            id: uuidV4(),
-            name: dto.name,
-            description: dto.description,
-        };
+  remove(id: string): boolean {
+    const exists = this.findOne(id);
+    if (!exists) return false;
 
-        this.db.categories.push(category);
-        return category;
-    }
+    this.db.categories = this.db.categories.filter((c) => c.id !== id);
 
-    update(id: string, dto: UpdateCategoryDto): CategoryType {
-        const category = this.findOne(id);
-        if (!category) {
-            throw new NotFoundException();
-        }
+    this.db.articles.forEach((a) => {
+      if (a.categoryId === id) a.categoryId = null;
+    });
 
-        Object.assign(category, dto);
-        return category;
-    }
-
-    remove(id: string): boolean {
-        const exists = this.findOne(id);
-        if (!exists) return false;
-
-        this.db.categories = this.db.categories.filter(c => c.id !== id);
-
-        this.db.articles.forEach(a => {
-            if (a.categoryId === id) a.categoryId = null;
-        });
-
-        return true;
-    }
+    return true;
+  }
 }

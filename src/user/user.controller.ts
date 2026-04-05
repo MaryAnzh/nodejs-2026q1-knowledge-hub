@@ -20,7 +20,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   findAll(): T.UserType[] {

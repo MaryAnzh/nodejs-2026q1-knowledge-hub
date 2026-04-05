@@ -12,7 +12,7 @@ import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly db: InMemoryDB) { }
+  constructor(private readonly db: InMemoryDB) {}
 
   findAll(): UserType[] {
     return this.db.users;
@@ -54,8 +54,10 @@ export class UserService {
   remove(id: string): boolean {
     const exists = this.findOne(id);
     if (!exists) return false;
-    this.db.users = this.db.users.filter(u => u.id !== id);
-    this.db.comments = this.db.comments.filter(({ authorId }) => authorId !== id);
+    this.db.users = this.db.users.filter((u) => u.id !== id);
+    this.db.comments = this.db.comments.filter(
+      ({ authorId }) => authorId !== id,
+    );
 
     for (const article of this.db.articles) {
       if (article.authorId === id) {

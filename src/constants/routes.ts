@@ -2,5 +2,5 @@ export const ROUTES = {
   USER: '/user',
   ARTICLE: '/article',
   CATEGORY: '/category',
-  COMMENT: '/comment'
+  COMMENT: '/comment',
 } as const;
