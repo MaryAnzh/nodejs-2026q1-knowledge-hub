@@ -19,5 +19,5 @@ export type ArticleType = {
 
 export type ArticleSortEntities = Pick<
   ArticleType,
-  'status' | 'categoryId' | 'tags' | 'title' | 'createdAt'
+  'categoryId' | 'title' | 'createdAt' | 'updatedAt'
 >;
