@@ -22,12 +22,10 @@ async function bootstrap() {
 
   SwaggerModule.setup('/doc', app, document);
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 Server is running on http://localhost:${port}`);
-  console.log(
-    `📘 Swagger documentation is available at http://localhost:${port}/doc`,
-  );
+  console.log(`📘 Swagger documentation is available at http://localhost:${port}/doc`);
 }
 
 bootstrap();
