@@ -4,6 +4,10 @@ import { CategoriesModule } from './categories/categories.module';
 import { CommentsModule } from './comments/comments.module';
 import { UserModule } from './user/user.module';
 import { StorageModule } from './storage/storage.module';
+import { HealthModule } from './health/health.module';
+
+import { AppController } from './app.controller';
+import { AppService } from './app-service';
 
 @Module({
   imports: [
@@ -12,7 +16,10 @@ import { StorageModule } from './storage/storage.module';
     CommentsModule,
     UserModule,
     StorageModule,
+    HealthModule,
   ],
+  controllers: [AppController],
+  providers: [AppService]
 })
 export class AppModule {
   constructor() {

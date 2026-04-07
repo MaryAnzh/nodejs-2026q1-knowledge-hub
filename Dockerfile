@@ -36,6 +36,9 @@ RUN npm ci --omit=dev
 # 5) copy dist from builder
 COPY --from=builder /app/dist ./dist
 
+RUN mkdir -p src/doc
+COPY --from=builder /app/src/doc/api.yaml ./src/doc/api.yaml
+
 # 6)
 COPY --from=builder /app/nest-cli.json ./
 COPY --from=builder /app/tsconfig*.json ./
