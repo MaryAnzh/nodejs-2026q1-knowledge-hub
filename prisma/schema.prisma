@@ -1,28 +1,30 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
-  ADMIN
-  EDITOR
-  VIEWER
+  admin
+  editor
+  viewer
 }
 
 enum ArticleStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  draft
+  published
+  archived
 }
 
 model User {
   id        String     @id @default(uuid())
   login     String     @unique
   password  String
-  role      Role       @default(VIEWER)
+  role      Role       @default(viewer)
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -44,7 +46,7 @@ model Article {
   id         String          @id @default(uuid())
   title      String
   content    String
-  status     ArticleStatus   @default(DRAFT)
+  status     ArticleStatus   @default(draft)
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
@@ -57,6 +59,8 @@ model Article {
   category   Category?       @relation("CategoryArticles", fields: [categoryId], references: [id], onDelete: SetNull)
   comments   Comment[]
   tags       Tag[]           @relation("ArticleTags")
+  @@index([status])
+  @@index([categoryId])
 }
 
 model Comment {
@@ -65,12 +69,12 @@ model Comment {
   createdAt DateTime  @default(now())
 
   // Foreign keys
-  authorId  String
+  authorId  String?
   articleId String
 
   // Relations
-  author    User      @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
-  article   Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author    User?      @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  article   Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
 
 model Tag {

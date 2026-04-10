@@ -10,32 +10,40 @@ import {
   BadRequestException,
   NotFoundException,
   HttpCode,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { validate as isUUID } from 'uuid';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
-import {
-  ArticleSortEntities,
-  ArticleSortType,
-  ArticleStatusType,
-} from 'src/types';
+import * as T from '../types';
+import { ArticleStatus } from '@prisma/client';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) {}
+  constructor(private readonly service: ArticlesService) { }
 
   @Get()
+  @ApiResponse({ status: SC.OK, description: 'List of articles' })
+  @ApiQuery({ name: 'status', required: false, enum: ArticleStatus })
+  @ApiQuery({ name: 'categoryId', required: false })
+  @ApiQuery({ name: 'tag', required: false, type: 'string' })
+  @ApiQuery({ name: 'page', required: false, type: 'number' })
+  @ApiQuery({ name: 'limit', required: false, type: 'number' })
+  @ApiQuery({ name: 'sortBy', required: false, enum: Object.keys({} as T.ArticleSortEntities) })
+  @ApiQuery({ name: 'order', required: false, enum: C.ARTICLE_SORT })
   getAll(
-    @Query('status') status?: ArticleStatusType,
+    @Query('status') status?: ArticleStatus,
     @Query('categoryId') categoryId?: string,
     @Query('tag') tag?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
-    @Query('sortBy') sortBy?: keyof ArticleSortEntities,
-    @Query('order') order?: ArticleSortType,
+    @Query('sortBy') sortBy?: keyof T.ArticleSortEntities,
+    @Query('order') order?: T.ArticleSortType,
   ) {
     if ((page && limit) || sortBy) {
       return this.service.findAllWithQuery({
@@ -51,54 +59,38 @@ export class ArticlesController {
     return this.service.findAll({ status, categoryId, tag });
   }
 
-  @Get('paginated')
-  getPaginated(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('sortBy') sortBy?: keyof ArticleSortEntities,
-    @Query('order') order?: ArticleSortType,
-  ) {
-    return this.service.findAllWithQuery({
-      page: Number(page),
-      limit: Number(limit),
-      sortBy: sortBy,
-      order,
-    });
-  }
-
   @Get(':id')
-  getById(@Param('id') id: string) {
-    if (!isUUID(id)) throw new BadRequestException();
-
-    const article = this.service.findOne(id);
-    if (!article) throw new NotFoundException(C.USER_NOT_FOUND);
-
-    return article;
+  @ApiResponse({ status: SC.OK, description: 'Article found' })
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({ status: SC.NOT_FOUND, description: C.ARTICLE_NOT_FOUND })
+  getById(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.service.findOne(id);
   }
 
   @Post()
+  @ApiResponse({ status: SC.CREATED, description: 'Article created' })
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
   create(@Body() dto: CreateArticleDto) {
     return this.service.create(dto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateArticleDto) {
-    if (!isUUID(id)) throw new BadRequestException();
-
-    const article = this.service.findOne(id);
-    if (!article) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
-
+  @ApiResponse({ status: SC.OK, description: 'Article updated' })
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID or DTO' })
+  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() dto: UpdateArticleDto,
+  ) {
     return this.service.update(id, dto);
   }
 
   @Delete(':id')
   @HttpCode(C.DELETED_CODE)
-  delete(@Param('id') id: string) {
-    if (!isUUID(id)) throw new BadRequestException();
-
-    const ok = this.service.remove(id);
-    if (!ok) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
-
-    return;
+  @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' })
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
+  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
+  delete(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.service.remove(id);
   }
 }

@@ -1,54 +1,40 @@
-#---------- STAGE 1: build ----------
-FROM node:24-alpine AS builder
+# ---------- STAGE 1: build ----------
+FROM node:24 AS builder
 
-# 1) work dir in container
 WORKDIR /app
 
-# 2) copy only package-files for cash dependencies
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
 
-# 3) install (dev + prod) dependencies
 RUN npm ci
+RUN npx prisma generate
 
-# 4) copy files
 COPY tsconfig*.json ./
 COPY nest-cli.json ./
 COPY src ./src
 
-# 5) TypeScript → dist build
 RUN npm run build
 
+
 # ---------- STAGE 2: production ----------
-FROM node:24-alpine AS production
+FROM node:24 AS production
 
-# 1) environment
 ENV NODE_ENV=production
-
-# 2) work dir
 WORKDIR /app
 
-# 3) copy packages files from builder
 COPY package.json package-lock.json ./
+COPY prisma ./prisma
 
-# 4) install prod dependencies
 RUN npm ci --omit=dev
+RUN npx prisma generate
 
-# 5) copy dist from builder
 COPY --from=builder /app/dist ./dist
-
-RUN mkdir -p src/doc
-COPY --from=builder /app/src/doc/api.yaml ./src/doc/api.yaml
-
-# 6)
 COPY --from=builder /app/nest-cli.json ./
 COPY --from=builder /app/tsconfig*.json ./
 
-# 7) create users non-root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 USER appuser
 
-# 8) app port (from my app)
 EXPOSE 4000
 
-# 9) start commands
 CMD ["node", "dist/main.js"]

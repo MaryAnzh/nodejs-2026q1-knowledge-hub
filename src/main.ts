@@ -1,9 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule } from '@nestjs/swagger';
-import * as YAML from 'yamljs';
-import { join } from 'path';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const port = process.env.PORT ?? 4000;
 
@@ -18,9 +16,14 @@ async function bootstrap() {
     }),
   );
 
-  const document = YAML.load(join(process.cwd(), 'src/doc/api.yaml'));
+   const config = new DocumentBuilder()
+    .setTitle('Knowledge Hub API')
+    .setDescription('API documentation for Knowledge Hub')
+    .setVersion('1.0')
+    .build();
 
-  SwaggerModule.setup('/doc', app, document);
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('doc', app, document);
 
   await app.listen(port, '0.0.0.0');
 

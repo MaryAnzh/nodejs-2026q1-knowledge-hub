@@ -1,70 +1,94 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { User } from '@prisma/client';
 
-import { v4 as uuidV4 } from 'uuid';
-
-import { VIEWER } from 'src/constants';
-import type { UserType } from '../types';
+import * as C from '../constants';
+import type * as T from '../types';
+import { PrismaService } from '../prismaService/prisma.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { omitFields } from 'src/utils/omitFields';
-import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly db: InMemoryDB) {}
+  constructor(private prisma: PrismaService) { }
 
-  findAll(): UserType[] {
-    return this.db.users;
-  }
-
-  findOne(id: string): UserType | null {
-    return this.db.users.find((user) => user.id === id) || null;
-  }
-
-  create(dto: CreateUserDto): Omit<UserType, 'password'> {
-    const now = Date.now();
-    const user: UserType = {
-      id: uuidV4(),
-      login: dto.login,
-      password: dto.password,
-      role: dto.role || VIEWER,
-      createdAt: now,
-      updatedAt: now,
+  private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
+    return {
+      id: u.id,
+      login: u.login,
+      role: u.role,
+      createdAt: u.createdAt.getTime(),
+      updatedAt: u.updatedAt.getTime(),
     };
-    this.db.users.push(user);
-    const safeUser = omitFields(user, ['password']);
-    return safeUser;
   }
 
-  update(id: string, dto: UpdateUserDto): Omit<UserType, 'password'> | null {
-    const user = this.findOne(id);
-    if (!user) return null;
+  private ensureUser(user: Omit<User, 'password'> | null) {
+    if (!user) {
+      throw new NotFoundException(C.USER_NOT_FOUND);
+    }
+  }
+
+  async findAll(): Promise<T.ResponseUserType[]> {
+    const users = await this.prisma.user.findMany({ select: { id: true, login: true, role: true, createdAt: true, updatedAt: true } });
+
+    return users.map((u) => this.safeUser(u));
+  }
+
+  async findOne(id: string): Promise<T.ResponseUserType> {
+    const user = await this.prisma.user
+      .findUnique({ where: { id }, select: { id: true, login: true, role: true, createdAt: true, updatedAt: true } });
+
+    this.ensureUser(user);
+
+    return this.safeUser(user);
+  }
+
+  async create(dto: CreateUserDto): Promise<T.ResponseUserType> {
+    const now = new Date();
+    const user = await this.prisma.user.create({
+      data: {
+        login: dto.login,
+        password: dto.password,
+        role: dto.role || C.VIEWER,
+        createdAt: now,
+        updatedAt: now,
+      },
+      select: { id: true, login: true, role: true, createdAt: true, updatedAt: true }
+    });
+
+    return this.safeUser(user);
+  }
+
+  async update(id: string, dto: UpdateUserDto): Promise<T.ResponseUserType> {
+    const user = await this.prisma.user.findUnique({ where: { id }, select: { password: true } });
+    if (!user) {
+      throw new NotFoundException(C.USER_NOT_FOUND);
+    }
 
     if (user.password !== dto.oldPassword) {
       throw new ForbiddenException();
     }
 
-    user.password = dto.newPassword;
-    user.updatedAt = Date.now();
-    const safeUser = omitFields(user, ['password']);
-    return safeUser;
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: {
+        password: dto.newPassword,
+      },
+      select: { id: true, login: true, role: true, createdAt: true, updatedAt: true }
+    });
+
+    return this.safeUser(updated);
   }
 
-  remove(id: string): boolean {
-    const exists = this.findOne(id);
-    if (!exists) return false;
-    this.db.users = this.db.users.filter((u) => u.id !== id);
-    this.db.comments = this.db.comments.filter(
-      ({ authorId }) => authorId !== id,
-    );
-
-    for (const article of this.db.articles) {
-      if (article.authorId === id) {
-        article.authorId = null;
-      }
+  async remove(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(C.USER_NOT_FOUND);
     }
 
-    return true;
+    await this.prisma.user.delete({
+      where: { id },
+    });
+    return null;
   }
 }

@@ -1,53 +1,57 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { v4 as uuidV4 } from 'uuid';
-import { CategoryType } from 'src/types';
+
+import { PrismaService } from '../prismaService/prisma.service';
+
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { InMemoryDB } from 'src/storage/in-memory.db';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly db: InMemoryDB) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  findAll(): CategoryType[] {
-    return this.db.categories;
+  findAll() {
+    return this.prisma.category.findMany();
   }
 
-  findOne(id: string): CategoryType | null {
-    return this.db.categories.find((c) => c.id === id) || null;
-  }
-
-  create(dto: CreateCategoryDto): CategoryType {
-    const category: CategoryType = {
-      id: uuidV4(),
-      name: dto.name,
-      description: dto.description,
-    };
-
-    this.db.categories.push(category);
-    return category;
-  }
-
-  update(id: string, dto: UpdateCategoryDto): CategoryType {
-    const category = this.findOne(id);
-    if (!category) {
-      throw new NotFoundException();
-    }
-
-    Object.assign(category, dto);
-    return category;
-  }
-
-  remove(id: string): boolean {
-    const exists = this.findOne(id);
-    if (!exists) return false;
-
-    this.db.categories = this.db.categories.filter((c) => c.id !== id);
-
-    this.db.articles.forEach((a) => {
-      if (a.categoryId === id) a.categoryId = null;
+  async findOne(id: string) {
+    const category = await this.prisma.category.findUnique({
+      where: { id },
     });
 
-    return true;
+    if (!category) throw new NotFoundException();
+    return category;
+  }
+
+  create(dto: CreateCategoryDto) {
+    return this.prisma.category.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+      },
+    });
+  }
+
+  async update(id: string, dto: UpdateCategoryDto) {
+    await this.findOne(id);
+
+    return this.prisma.category.update({
+      where: { id },
+      data: dto,
+    });
+  }
+
+  async remove(id: string) {
+    await this.findOne(id);
+
+    await this.prisma.article.updateMany({
+      where: { categoryId: id },
+      data: { categoryId: null },
+    });
+
+    await this.prisma.category.delete({
+      where: { id },
+    });
+
+    return null;
   }
 }

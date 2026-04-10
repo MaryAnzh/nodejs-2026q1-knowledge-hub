@@ -8,7 +8,7 @@ async function main() {
     data: {
       login: 'admin',
       password: 'admin123',
-      role: Role.ADMIN,
+      role: Role.admin,
     },
   });
 
@@ -16,7 +16,7 @@ async function main() {
     data: {
       login: 'editor',
       password: 'editor123',
-      role: Role.EDITOR,
+      role: Role.editor,
     },
   });
 
@@ -24,7 +24,7 @@ async function main() {
     data: {
       login: 'editor2',
       password: 'editor2123',
-      role: Role.EDITOR,
+      role: Role.editor,
     },
   });
 
@@ -32,7 +32,7 @@ async function main() {
     data: {
       login: 'viewer',
       password: 'viewer123',
-      role: Role.VIEWER,
+      role: Role.viewer,
     },
   });
 
@@ -69,7 +69,7 @@ async function main() {
     data: {
       title: 'Intro to Prisma',
       content: 'Prisma is a modern ORM...',
-      status: ArticleStatus.PUBLISHED,
+      status: ArticleStatus.published,
       authorId: admin.id,
       categoryId: tech?.id,
       tags: {
@@ -83,7 +83,7 @@ async function main() {
     data: {
       title: 'Docker Basics',
       content: 'Docker is a containerization tool...',
-      status: ArticleStatus.DRAFT,
+      status: ArticleStatus.draft,
       authorId: editor.id,
       categoryId: tech?.id,
       tags: {
@@ -97,7 +97,7 @@ async function main() {
     data: {
       title: 'Node.js Basics',
       content: 'Node.js is a JavaScript runtime...',
-      status: ArticleStatus.PUBLISHED,
+      status: ArticleStatus.published,
       authorId: editor2.id,
       categoryId: tech?.id,
       tags: {
@@ -111,7 +111,7 @@ async function main() {
     data: {
       title: 'Quantum Physics Overview',
       content: 'Quantum physics explores the behavior of matter...',
-      status: ArticleStatus.ARCHIVED,
+      status: ArticleStatus.archived,
       authorId: editor2.id,
       categoryId: science?.id,
       tags: {
@@ -125,7 +125,7 @@ async function main() {
     data: {
       title: 'Healthy Lifestyle Tips',
       content: 'A healthy lifestyle includes balanced nutrition...',
-      status: ArticleStatus.PUBLISHED,
+      status: ArticleStatus.published,
       authorId: editor.id,
       categoryId: lifestyle?.id,
       tags: {

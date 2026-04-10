@@ -1,15 +1,18 @@
-import { IsIn, IsOptional, IsString } from 'class-validator';
-import { USER_ROLES } from 'src/constants';
-import { UserRoleType } from 'src/types';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Role } from '@prisma/client';
 
 export class CreateUserDto {
+  @ApiProperty({ example: 'alice' })
   @IsString()
   login: string;
 
+  @ApiProperty({ example: 'password123' })
   @IsString()
   password: string;
 
+  @ApiPropertyOptional({ example: Role.viewer, enum: Role })
   @IsOptional()
-  @IsIn(Object.values(USER_ROLES))
-  role?: UserRoleType;
+  @IsEnum(Role)
+  role?: Role;
 }
