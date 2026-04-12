@@ -1,8 +1,10 @@
 📘 Knowledge Hub API — Dockerized (Assignment 06a)
 A fully containerized NestJS application with PostgreSQL, custom Docker network, healthchecks, environment variables, and security scanning.
 
+
 🐳 Docker Hub Image
 The application image is published on Docker Hub:
+
 
 https://hub.docker.com/r/maryanzh/knowledge-hub
 
