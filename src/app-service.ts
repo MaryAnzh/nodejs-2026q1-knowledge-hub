@@ -4,7 +4,7 @@ import { HELLO } from './constants';
 
 @Injectable()
 export class AppService {
-    getHello() {
-        return HELLO;
-    }
+  getHello() {
+    return HELLO;
+  }
 }

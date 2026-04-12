@@ -9,12 +9,7 @@ import {
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiResponse,
-  ApiParam,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
@@ -27,7 +22,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @ApiTags(C.USER)
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'Get all users' })

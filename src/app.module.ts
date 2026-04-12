@@ -16,10 +16,10 @@ import { AppService } from './app-service';
     CommentsModule,
     UserModule,
     HealthModule,
-    PrismaModule
+    PrismaModule,
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService],
 })
 export class AppModule {
   constructor() {

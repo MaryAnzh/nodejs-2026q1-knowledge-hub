@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 
 import * as C from '../constants';
@@ -10,7 +14,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
     return {
@@ -29,14 +33,30 @@ export class UserService {
   }
 
   async findAll(): Promise<T.ResponseUserType[]> {
-    const users = await this.prisma.user.findMany({ select: { id: true, login: true, role: true, createdAt: true, updatedAt: true } });
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+        login: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     return users.map((u) => this.safeUser(u));
   }
 
   async findOne(id: string): Promise<T.ResponseUserType> {
-    const user = await this.prisma.user
-      .findUnique({ where: { id }, select: { id: true, login: true, role: true, createdAt: true, updatedAt: true } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        login: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
 
     this.ensureUser(user);
 
@@ -53,14 +73,23 @@ export class UserService {
         createdAt: now,
         updatedAt: now,
       },
-      select: { id: true, login: true, role: true, createdAt: true, updatedAt: true }
+      select: {
+        id: true,
+        login: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return this.safeUser(user);
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<T.ResponseUserType> {
-    const user = await this.prisma.user.findUnique({ where: { id }, select: { password: true } });
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: { password: true },
+    });
     if (!user) {
       throw new NotFoundException(C.USER_NOT_FOUND);
     }
@@ -74,7 +103,13 @@ export class UserService {
       data: {
         password: dto.newPassword,
       },
-      select: { id: true, login: true, role: true, createdAt: true, updatedAt: true }
+      select: {
+        id: true,
+        login: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
     return this.safeUser(updated);

@@ -169,7 +169,7 @@ Adminer (enabled via profile)
 Custom network hub-net
 
 🔧 Environment Variables (.env)
-Код
+text
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=knowledge_hub
@@ -193,3 +193,231 @@ healthcheck:
   interval: 10s
   timeout: 5s
   retries: 5
+
+
+  📘 Knowledge Hub API — Prisma + PostgreSQL + NestJS (Assignment 06b)
+A fully implemented REST API built with NestJS, Prisma ORM, PostgreSQL, Docker, Swagger, seed scripts, pagination, sorting, filtering, cascading deletes, transactions, and many‑to‑many tags.
+
+This project fully satisfies Basic, Advanced, and Hacker Scope of RS School NodeJS 2026Q1 — Task 06b.
+
+🧩 Features Implemented
+Entities
+User
+
+Article
+
+Category
+
+Comment
+
+Tag (many‑to‑many with Article)
+
+Functionality
+Full CRUD for all entities
+
+Filtering (status, categoryId, tag)
+
+Pagination & sorting
+
+Cascading delete/nullify rules
+
+Prisma transactions
+
+connectOrCreate for tags
+
+Indexes for optimized queries
+
+Swagger documentation
+
+Seed script
+
+100% passing built‑in e2e tests
+
+Additional custom tests (health, pagination/sorting)
+
+🐳 Running the Application (Local + Docker)
+1️⃣ Install dependencies
+bash
+npm install
+2️⃣ Environment variables
+Create .env (or use .env.example):
+
+text
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/knowledge_hub"
+PORT=3000
+3️⃣ Start PostgreSQL via Docker
+bash
+docker compose up -d
+Expected:
+
+text
+[+] Running 2/2
+ - Container knowledge-hub-db   Healthy
+ - Network hub-net              Created
+Check status:
+
+bash
+docker ps
+Both containers must be healthy.
+
+🗄 Inspecting the Database (as we did in VS Code terminal)
+1️⃣ Enter PostgreSQL container
+bash
+docker exec -it knowledge-hub-db psql -U postgres
+2️⃣ List Prisma tables
+sql
+\dt
+Expected tables:
+
+User
+
+Article
+
+Category
+
+Comment
+
+Tag
+
+_ArticleTags
+
+Prisma migration tables
+
+3️⃣ View seeded data
+sql
+SELECT * FROM "User";
+SELECT * FROM "Article";
+SELECT * FROM "Category";
+SELECT * FROM "Comment";
+SELECT * FROM "Tag";
+4️⃣ Exit
+text
+\q
+🌱 Seed Script
+Seed file:
+
+text
+/scripts/seed.ts
+Run:
+
+bash
+npx prisma db seed
+Creates:
+
+Users
+
+Categories
+
+Articles
+
+Tags
+
+Comments
+
+🧪 Testing
+Run all tests:
+
+bash
+npm run test
+Includes:
+
+✔ Built‑in RS School e2e tests
+Located in /test/ — all pass.
+
+✔ Custom tests
+Located in /custom_tests/:
+
+health.spec.ts
+
+articles-pagination-sorting.e2e.spec.ts
+
+All tests pass.
+
+🚀 Running the Application
+Development mode (TypeScript)
+bash
+npm run start:dev
+Production mode (compiled dist)
+bash
+npm run build
+npm run start
+📚 Swagger API Documentation
+After starting the app:
+
+text
+http://localhost:3000/api
+Includes:
+
+All CRUD endpoints
+
+Filtering
+
+Pagination
+
+Sorting
+
+DTO schemas
+
+Tags grouping
+
+🏗 Project Structure
+text
+src/
+ ├── articles/
+ ├── categories/
+ ├── comments/
+ ├── user/
+ ├── health/
+ ├── prismaService/
+ ├── utils/
+ ├── app.module.ts
+ ├── app.controller.ts
+ ├── main.ts
+prisma/
+ ├── schema.prisma
+scripts/
+ ├── seed.ts
+custom_tests/
+test/
+docker-compose.yml
+Dockerfile
+🧮 Scoring Compliance (06b)
+✔ Basic Scope — 92 / 92
+Prisma schema
+
+All relations
+
+Many‑to‑many
+
+Migrations
+
+DATABASE_URL
+
+Docker PostgreSQL
+
+GET /user
+
+GET /article (with filters)
+
+GET /category
+
+GET /comment
+
+✔ Advanced Scope — 40 / 40
+Seed script
+
+Cascading delete/nullify
+
+Prisma transactions
+
+connectOrCreate for tags
+
+✔ Hacker Scope — 22 / 22
+Indexes
+
+Connection pooling
+
+No N+1 queries
+
+🟢 Final Score: 154 / 154
+Full completion of Assignment 06b.

@@ -10,9 +10,14 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
-  private safeArticle({ createdAt, updatedAt, tags, ...rest }: Article & { tags: Tag[] }): T.ArticleType {
+  private safeArticle({
+    createdAt,
+    updatedAt,
+    tags,
+    ...rest
+  }: Article & { tags: Tag[] }): T.ArticleType {
     return {
       ...rest,
       tags: tags.map((t) => t.name),
@@ -21,12 +26,15 @@ export class ArticlesService {
     };
   }
 
-  async findAll({ categoryId, status, tag }: T.ArticleQueryType): Promise<T.ArticleType[]> {
-
+  async findAll({
+    categoryId,
+    status,
+    tag,
+  }: T.ArticleQueryType): Promise<T.ArticleType[]> {
     const where = {
       status: status ?? undefined,
       categoryId: categoryId ?? undefined,
-      tags: tag ? { some: { name: tag } } : undefined
+      tags: tag ? { some: { name: tag } } : undefined,
     };
 
     const articles = await this.prisma.article.findMany({
@@ -38,15 +46,22 @@ export class ArticlesService {
   }
 
   //hacker score
-  async findAllWithQuery({ page, limit, status, categoryId, tag, sortBy, order }
-    : T.ArticleSortQueryType): Promise<T.ArticleSortResultType> {
+  async findAllWithQuery({
+    page,
+    limit,
+    status,
+    categoryId,
+    tag,
+    sortBy,
+    order,
+  }: T.ArticleSortQueryType): Promise<T.ArticleSortResultType> {
     const qPage = page && page > 0 ? page : C.FIRST_PAGE_COUNT;
     const qLimit = limit && limit > 0 ? limit : C.ITEM_COUNT_IN_PAGE;
 
     const where = {
       status: status ?? undefined,
       categoryId: categoryId ?? undefined,
-      tags: tag ? { some: { name: tag } } : undefined
+      tags: tag ? { some: { name: tag } } : undefined,
     };
 
     const [total, data] = await this.prisma.$transaction([
@@ -64,7 +79,7 @@ export class ArticlesService {
       total,
       page: qPage,
       limit: qLimit,
-      data: data.map((a) => this.safeArticle(a))
+      data: data.map((a) => this.safeArticle(a)),
     };
   }
 
@@ -93,11 +108,11 @@ export class ArticlesService {
         updatedAt: now,
         tags: dto.tags
           ? {
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },
@@ -116,12 +131,12 @@ export class ArticlesService {
         updatedAt: new Date(),
         tags: dto.tags
           ? {
-            set: [],
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              set: [],
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },

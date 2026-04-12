@@ -9,12 +9,7 @@ import {
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import {
-  ApiBody,
-  ApiParam,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
@@ -26,7 +21,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
-  constructor(private readonly service: CategoriesService) { }
+  constructor(private readonly service: CategoriesService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of categories' })

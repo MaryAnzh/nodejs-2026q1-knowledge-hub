@@ -8,5 +8,5 @@ export class CreateCategoryDto {
 
   @ApiProperty({ example: 'Articles about modern technologies' })
   @IsString()
-  description: string
+  description: string;
 }

@@ -24,7 +24,7 @@ import * as C from '../constants';
 @ApiTags(C.COMMENTS)
 @Controller(C.ROUTES.COMMENT)
 export class CommentsController {
-  constructor(private readonly service: CommentsService) { }
+  constructor(private readonly service: CommentsService) {}
 
   @Get()
   @ApiQuery({ name: 'articleId', required: false })

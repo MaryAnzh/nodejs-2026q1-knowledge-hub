@@ -1,4 +1,3 @@
-
 import { Role, User } from '@prisma/client';
 
 export type CreateUserDto = {
@@ -12,9 +11,10 @@ export type UpdatePasswordDto = {
   newPassword: string;
 };
 
-export type ResponseUserType = Omit<User, 'password' | 'createdAt' | 'updatedAt'>
-  & {
-    createdAt: number;
-    updatedAt: number;
-  }
-
+export type ResponseUserType = Omit<
+  User,
+  'password' | 'createdAt' | 'updatedAt'
+> & {
+  createdAt: number;
+  updatedAt: number;
+};

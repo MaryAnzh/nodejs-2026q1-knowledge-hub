@@ -7,8 +7,6 @@ import {
   Param,
   Body,
   Query,
-  BadRequestException,
-  NotFoundException,
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
@@ -19,13 +17,14 @@ import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
 import * as T from '../types';
+
 import { ArticleStatus } from '@prisma/client';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) { }
+  constructor(private readonly service: ArticlesService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of articles' })
@@ -34,7 +33,11 @@ export class ArticlesController {
   @ApiQuery({ name: 'tag', required: false, type: 'string' })
   @ApiQuery({ name: 'page', required: false, type: 'number' })
   @ApiQuery({ name: 'limit', required: false, type: 'number' })
-  @ApiQuery({ name: 'sortBy', required: false, enum: Object.keys({} as T.ArticleSortEntities) })
+  @ApiQuery({
+    name: 'sortBy',
+    required: false,
+    enum: Object.keys({} as T.ArticleSortEntities),
+  })
   @ApiQuery({ name: 'order', required: false, enum: C.ARTICLE_SORT })
   getAll(
     @Query('status') status?: ArticleStatus,

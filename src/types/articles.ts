@@ -12,7 +12,10 @@ export type ArticleType = Omit<Article, 'createdAt' | 'updatedAt'> & {
   createdAt: number;
   updatedAt: number;
 };
-export type SortKeysType = keyof (Pick<ArticleType, 'status' | 'categoryId' | 'tags'>)
+export type SortKeysType = keyof Pick<
+  ArticleType,
+  'status' | 'categoryId' | 'tags'
+>;
 
 export type ArticleSortEntities = Pick<
   ArticleType,
@@ -24,11 +27,11 @@ export type ArticleSortQueryType = ArticleQueryType & {
   limit?: number;
   sortBy?: keyof ArticleSortEntities;
   order?: ArticleSortType;
-}
+};
 
 export type ArticleSortResultType = {
   total: number;
   page: number;
   limit: number;
   data: ArticleType[];
-}
+};

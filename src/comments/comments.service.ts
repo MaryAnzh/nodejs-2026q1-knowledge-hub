@@ -11,7 +11,7 @@ import * as C from '../constants';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   private safe(comment: Comment) {
     return {

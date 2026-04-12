@@ -10,7 +10,6 @@ export class CreateCommentDto {
     example: '0a35dd62-e09f-444b-a628-f4e7c6954f57',
     description: 'ID of the article',
   })
-  
   @IsUUID()
   articleId: string;
 
