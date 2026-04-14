@@ -1,7 +1,4 @@
-import { Role } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 
-export type AccessStrategyType = {
-  userId: string;
-  login: string;
-  role: Role;
-};
+export type AccessStrategyType = Pick<User, 'login' | 'role' | 'id'>;
+export type TimeTokenType = `${number}${'m' | 'd'}`;

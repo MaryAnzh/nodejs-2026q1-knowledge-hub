@@ -1,13 +1,16 @@
+import { IsString, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
 
 export class SignupDto {
-  @ApiProperty()
-  @IsString()
-  login: string;
-
-  @ApiProperty()
+  @ApiProperty({ example: 'john_doe' })
   @IsString()
   @MinLength(3)
+  @MaxLength(50)
+  login: string;
+
+  @ApiProperty({ example: 'strong_password_123' })
+  @IsString()
+  @MinLength(6)
+  @MaxLength(50)
   password: string;
 }

@@ -7,13 +7,23 @@ export const {
   COMMENTS,
   USER,
   AUTH,
+  USER_EXISTS,
+  INVALID_CREDENTIALS,
+  INVALID_REFRESH_TOKEN,
+  WRONG_LOGIN,
+  WRONG_PASSWORD
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
+  USER_EXISTS: 'User already exists',
   ARTICLE_NOT_FOUND: 'Article not found',
   USER: 'user',
-  ARTICLES: 'artices',
+  ARTICLES: 'articles',
   CATEGORIES: 'categories',
   COMMENTS: 'comments',
   AUTH: 'Auth',
+  INVALID_CREDENTIALS: 'Invalid credentials',
+  INVALID_REFRESH_TOKEN: 'Invalid refresh token',
+  WRONG_LOGIN: 'Wrong login',
+  WRONG_PASSWORD: 'Wrong password'
 } as const;

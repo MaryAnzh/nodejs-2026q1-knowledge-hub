@@ -95,10 +95,10 @@ export class ArticlesController {
 
   @Roles(Role.admin)
   @Delete(':id')
-  @HttpCode(C.DELETED_CODE)
-  @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' })
-  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
-  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
+  @HttpCode(SC.NO_CONTENT) // 204
+  @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' }) // 204
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' }) // 400
+  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' }) // 404
   delete(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.service.remove(id);
   }
