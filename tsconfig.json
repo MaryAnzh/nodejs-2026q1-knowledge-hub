@@ -15,12 +15,16 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
-    "src"
-  ],
-  "exclude": [
-    "scripts"
+    "src",
+    "prisma/**/*.ts",
+    "tests",
+    "custom_tests"
   ]
 }

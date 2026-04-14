@@ -14,12 +14,15 @@ import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { StatusCodes as SC } from 'http-status-codes';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 import * as C from '../constants';
 import * as T from '../types';
 
 import { ArticleStatus } from '@prisma/client';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
@@ -70,6 +73,7 @@ export class ArticlesController {
     return this.service.findOne(id);
   }
 
+  @Roles(Role.editor, Role.admin)
   @Post()
   @ApiResponse({ status: SC.CREATED, description: 'Article created' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
@@ -77,6 +81,7 @@ export class ArticlesController {
     return this.service.create(dto);
   }
 
+  @Roles(Role.editor, Role.admin)
   @Put(':id')
   @ApiResponse({ status: SC.OK, description: 'Article updated' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID or DTO' })
@@ -88,6 +93,7 @@ export class ArticlesController {
     return this.service.update(id, dto);
   }
 
+  @Roles(Role.admin)
   @Delete(':id')
   @HttpCode(C.DELETED_CODE)
   @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' })

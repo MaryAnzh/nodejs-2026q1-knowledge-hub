@@ -17,11 +17,9 @@ describe('ArticlesController — pagination & sorting (unit, prisma)', () => {
         controller = module.get<ArticlesController>(ArticlesController);
         prisma = module.get<PrismaService>(PrismaService);
 
-        // Чистим таблицу
         await prisma.comment.deleteMany();
         await prisma.article.deleteMany();
 
-        // Создаём тестовые данные
         await prisma.article.createMany({
             data: [
                 {
