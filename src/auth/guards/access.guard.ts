@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
@@ -8,5 +8,16 @@ export class AccessGuard extends AuthGuard('jwt') {
       throw new UnauthorizedException('Invalid or missing access token');
     }
     return user;
+  }
+
+  canActivate(context: ExecutionContext) {
+    const req = context.switchToHttp().getRequest();
+    const publicRoutes = ['/auth/signup', '/auth/login', '/auth/refresh', '/doc', '/'];
+
+    if (publicRoutes.includes(req.path)) {
+      return true;
+    }
+
+    return super.canActivate(context);
   }
 }

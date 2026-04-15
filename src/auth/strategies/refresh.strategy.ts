@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { User } from '@prisma/client';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { TokenPayloadType } from '../../types';
 
 @Injectable()
 export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
@@ -12,7 +13,7 @@ export class RefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     });
   }
 
-  async validate(payload: Pick<User, 'id'>) {
+  async validate(payload: TokenPayloadType) {
     return payload;
   }
 }

@@ -11,7 +11,8 @@ export const {
   INVALID_CREDENTIALS,
   INVALID_REFRESH_TOKEN,
   WRONG_LOGIN,
-  WRONG_PASSWORD
+  WRONG_PASSWORD,
+  INVALID_ACCESS_TOKEN,
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -23,6 +24,7 @@ export const {
   COMMENTS: 'comments',
   AUTH: 'Auth',
   INVALID_CREDENTIALS: 'Invalid credentials',
+  INVALID_ACCESS_TOKEN: 'Invalid access token',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token',
   WRONG_LOGIN: 'Wrong login',
   WRONG_PASSWORD: 'Wrong password'

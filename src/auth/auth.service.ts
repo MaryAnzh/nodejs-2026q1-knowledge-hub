@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -13,7 +14,7 @@ import * as C from '../constants';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
-import type { TimeTokenType } from '../types';
+import type { TimeTokenType, TokenPayloadType } from '../types';
 
 @Injectable()
 export class AuthService {
@@ -68,33 +69,33 @@ export class AuthService {
 
   async refresh(dto: RefreshDto) {
     try {
-      const payload = await this.jwt.verifyAsync(dto.refreshToken, {
+      const payload: TokenPayloadType = await this.jwt.verifyAsync(dto.refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
 
       const user = await this.prisma.user.findUnique({
-        where: { id: payload.id },
+        where: { id: payload.userId },
       });
 
       if (!user) {
-        throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN);
+        throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
       }
 
       return this.issueTokens(user);
     } catch {
-      throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN);
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN); // 403
     }
   }
 
   private async issueTokens({ id, login, role }: User) {
     const accessToken = await this.jwt.signAsync(
-      { id, login, role }, {
+      { userId: id, login, role }, {
       secret: process.env.JWT_SECRET,
       expiresIn: this.ACCESS_TTL,
     });
 
     const refreshToken = await this.jwt.signAsync(
-      { id, login, role },
+      { userId: id, login, role },
       {
         secret: process.env.JWT_REFRESH_SECRET,
         expiresIn: this.REFRESH_TTL,

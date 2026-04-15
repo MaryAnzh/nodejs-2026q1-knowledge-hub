@@ -20,7 +20,9 @@ import {
 } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 import * as C from '../constants';
+import { Auth } from '../auth/decorators/auth.decorator';
 
+@Auth()
 @ApiTags(C.COMMENTS)
 @Controller(C.ROUTES.COMMENT)
 export class CommentsController {

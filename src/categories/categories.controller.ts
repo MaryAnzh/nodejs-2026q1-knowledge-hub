@@ -17,11 +17,15 @@ import * as C from '../constants';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
+@Auth()
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
-  constructor(private readonly service: CategoriesService) {}
+  constructor(private readonly service: CategoriesService) { }
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of categories' })
@@ -37,6 +41,7 @@ export class CategoriesController {
     return this.service.findOne(id);
   }
 
+  @Roles(Role.admin, Role.editor)
   @Post()
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({ status: SC.CREATED, description: 'Category created' })
@@ -44,6 +49,7 @@ export class CategoriesController {
     return this.service.create(dto);
   }
 
+  @Roles(Role.admin, Role.editor)
   @Put(':id')
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateCategoryDto })
@@ -56,6 +62,7 @@ export class CategoriesController {
     return this.service.update(id, dto);
   }
 
+  @Roles(Role.admin)
   @Delete(':id')
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id' })

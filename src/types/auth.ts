@@ -1,4 +1,10 @@
 import { Role, User } from '@prisma/client';
+import { JwtPayload } from 'jsonwebtoken';
 
-export type AccessStrategyType = Pick<User, 'login' | 'role' | 'id'>;
+export interface TokenPayloadType extends JwtPayload {
+    userId: string;
+    login: string;
+    role: Role;
+}
+
 export type TimeTokenType = `${number}${'m' | 'd'}`;
