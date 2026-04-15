@@ -18,6 +18,10 @@ export const {
   COMMENT_EXCEPTION,
   COMMENT_DELETE_EXCEPTION,
   ARTICLE_DELETE_EXCEPTION,
+  USER_UPDATE_FORBIDDEN,
+  INVALID_UUID_DTO,
+  USer_ROLE_UPDATED,
+  //#
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -38,6 +42,7 @@ export const {
   COMMENT_EXCEPTION: `You cannot edit someone else's comment`,
   ARTICLE_DELETE_EXCEPTION: `You cannot delete someone else's article`,
   COMMENT_DELETE_EXCEPTION: `You cannot delete someone else's comment`,
-
-
+  USER_UPDATE_FORBIDDEN: 'USer updated forbidden',
+  INVALID_UUID_DTO: 'Invalid UUID or DTO',
+  USer_ROLE_UPDATED: 'User role updated'
 } as const;

@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
 
 import * as C from '../constants';
@@ -11,10 +12,13 @@ import { PrismaService } from '../prismaService/prisma.service';
 
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
+
+  constructor(private prisma: PrismaService) { }
 
   private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
     return {
@@ -65,11 +69,13 @@ export class UserService {
 
   async create(dto: CreateUserDto): Promise<T.ResponseUserType> {
     const now = new Date();
+    const hashed = await bcrypt.hash(dto.password, this.CRYPT_SALT);
+
     const user = await this.prisma.user.create({
       data: {
         login: dto.login,
-        password: dto.password,
-        role: dto.role || C.VIEWER,
+        password: hashed,
+        role: C.VIEWER,
         createdAt: now,
         updatedAt: now,
       },
@@ -85,7 +91,11 @@ export class UserService {
     return this.safeUser(user);
   }
 
-  async update(id: string, dto: UpdateUserDto): Promise<T.ResponseUserType> {
+  async update(id: string, dto: UpdateUserDto, { role, userId }: T.TokenPayloadType): Promise<T.ResponseUserType> {
+    if (role !== C.ADMIN && userId !== id) {
+      throw new ForbiddenException(C.USER_UPDATE_FORBIDDEN);
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: { password: true },
@@ -95,7 +105,7 @@ export class UserService {
     }
 
     if (user.password !== dto.oldPassword) {
-      throw new ForbiddenException();
+      throw new ForbiddenException(C.WRONG_PASSWORD);
     }
 
     const updated = await this.prisma.user.update({
@@ -103,6 +113,26 @@ export class UserService {
       data: {
         password: dto.newPassword,
       },
+      select: {
+        id: true,
+        login: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+
+    return this.safeUser(updated);
+  }
+
+  async updateRole(id: string, dto: UpdateUserRoleDto) {
+    const exists = await this.prisma.user.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException(C.USER_NOT_FOUND);
+
+    const updated = await this.prisma.user.update({
+      where: { id },
+      data: { role: dto.role },
       select: {
         id: true,
         login: true,
