@@ -18,7 +18,9 @@ import * as T from '../types';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
 
+@Auth()
 @ApiTags(C.USER)
 @Controller(C.ROUTES.USER)
 export class UserController {

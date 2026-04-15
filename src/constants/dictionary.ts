@@ -13,6 +13,11 @@ export const {
   WRONG_LOGIN,
   WRONG_PASSWORD,
   INVALID_ACCESS_TOKEN,
+  EDIT_EXCEPTION,
+  COMMENT_NOT_FOUND,
+  COMMENT_EXCEPTION,
+  COMMENT_DELETE_EXCEPTION,
+  ARTICLE_DELETE_EXCEPTION,
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -27,5 +32,12 @@ export const {
   INVALID_ACCESS_TOKEN: 'Invalid access token',
   INVALID_REFRESH_TOKEN: 'Invalid refresh token',
   WRONG_LOGIN: 'Wrong login',
-  WRONG_PASSWORD: 'Wrong password'
+  WRONG_PASSWORD: 'Wrong password',
+  EDIT_EXCEPTION: `You cannot edit someone else's article`,
+  COMMENT_NOT_FOUND: 'Comment not found',
+  COMMENT_EXCEPTION: `You cannot edit someone else's comment`,
+  ARTICLE_DELETE_EXCEPTION: `You cannot delete someone else's article`,
+  COMMENT_DELETE_EXCEPTION: `You cannot delete someone else's comment`,
+
+
 } as const;

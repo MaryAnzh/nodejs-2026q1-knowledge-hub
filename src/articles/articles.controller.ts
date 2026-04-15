@@ -15,9 +15,10 @@ import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { StatusCodes as SC } from 'http-status-codes';
 import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import { User } from '../auth/decorators/user.decorator';
 
 import * as C from '../constants';
 import * as T from '../types';
@@ -27,7 +28,7 @@ import { ArticleStatus } from '@prisma/client';
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) {}
+  constructor(private readonly service: ArticlesService) { }
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of articles' })
@@ -81,25 +82,29 @@ export class ArticlesController {
     return this.service.create(dto);
   }
 
-  @Roles(Role.editor, Role.admin)
   @Put(':id')
+  @Roles(Role.editor, Role.admin)
   @ApiResponse({ status: SC.OK, description: 'Article updated' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID or DTO' })
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateArticleDto,
+    @User() user: T.TokenPayloadType,
   ) {
-    return this.service.update(id, dto);
+    return this.service.update(id, dto, user);
   }
 
-  @Roles(Role.admin)
+  @Roles(Role.admin, Role.editor)
   @Delete(':id')
   @HttpCode(SC.NO_CONTENT) // 204
   @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' }) // 204
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' }) // 400
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' }) // 404
-  delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.service.remove(id);
+  delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @User() user: T.TokenPayloadType,
+  ) {
+    return this.service.remove(id, user);
   }
 }

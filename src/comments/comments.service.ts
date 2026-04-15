@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -8,10 +9,11 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from '@prisma/client';
 import * as C from '../constants';
+import { TokenPayloadType } from '../types';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private safe(comment: Comment) {
     return {
@@ -56,7 +58,13 @@ export class CommentsService {
     return this.safe(comment);
   }
 
-  async update(id: string, dto: UpdateCommentDto) {
+  async update(id: string, dto: UpdateCommentDto, user: TokenPayloadType) {
+    const exists = await this.prisma.comment.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
+
+    if (user.role === C.EDITOR && exists.authorId !== user.userId) {
+      throw new ForbiddenException(C.COMMENT_EXCEPTION);
+    }
     await this.findOne(id);
 
     const updated = await this.prisma.comment.update({
@@ -67,8 +75,14 @@ export class CommentsService {
     return this.safe(updated);
   }
 
-  async remove(id: string) {
-    await this.findOne(id);
+  async remove(id: string, user: TokenPayloadType) {
+    const exists = await this.prisma.comment.findUnique({ where: { id } });
+    if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
+
+    if (user.role !== C.ADMIN && exists.authorId !== user.userId) {
+      throw new ForbiddenException(C.COMMENT_DELETE_EXCEPTION);
+    }
+
     await this.prisma.comment.delete({ where: { id } });
     return null;
   }
