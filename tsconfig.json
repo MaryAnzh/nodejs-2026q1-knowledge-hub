@@ -22,9 +22,6 @@
     ]
   },
   "include": [
-    "src",
-    "prisma/**/*.ts",
-    "tests",
-    "custom_tests"
+    "src"
   ]
 }

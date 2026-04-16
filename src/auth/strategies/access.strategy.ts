@@ -8,12 +8,17 @@ import * as C from '../../constants';
 export class AccessStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
+        ExtractJwt.fromHeader('authorization'),
+      ]),
       secretOrKey: process.env.JWT_SECRET,
     });
   }
 
   async validate(payload: TokenPayloadType) {
+    console.log('--- AccessStrategy.validate ---');
+    console.log('payload:', payload);
     return payload;
   }
 }

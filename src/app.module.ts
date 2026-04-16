@@ -32,11 +32,7 @@ import { AppService } from './app-service';
     {
       provide: APP_GUARD,
       useClass: AccessGuard, // check JWT
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard, // check roles
-    },
+    }
   ],
 })
 export class AppModule {

@@ -4,5 +4,5 @@ export const ROUTES = {
   CATEGORY: '/category',
   COMMENT: '/comment',
   HEALTH: '/health',
-  AUTH: './auth',
+  AUTH: '/auth',
 } as const;

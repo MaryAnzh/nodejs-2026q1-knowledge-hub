@@ -5,14 +5,13 @@ import { StatusCodes as SC } from 'http-status-codes';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
 
 import * as C from '../constants';
 
 @ApiTags(C.AUTH)
 @Controller(C.ROUTES.AUTH)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('signup')
   @ApiOperation({ summary: 'Create new user' })
@@ -38,7 +37,7 @@ export class AuthController {
   @ApiResponse({ status: SC.OK }) // 200
   @ApiResponse({ status: SC.UNAUTHORIZED }) // 401
   @ApiResponse({ status: SC.FORBIDDEN }) // 403
-  async refresh(@Body() dto: RefreshDto) {
-    return this.authService.refresh(dto);
+  async refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refresh(refreshToken);
   }
 }

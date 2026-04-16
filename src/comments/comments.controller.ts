@@ -21,8 +21,6 @@ import {
 import { StatusCodes as SC } from 'http-status-codes';
 import * as C from '../constants';
 import { Auth } from '../auth/decorators/auth.decorator';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { Role } from '@prisma/client';
 import { User } from '../auth/decorators/user.decorator';
 import { TokenPayloadType } from '../types';
 

@@ -24,7 +24,9 @@ import * as C from '../constants';
 import * as T from '../types';
 
 import { ArticleStatus } from '@prisma/client';
+import { Auth } from '../auth/decorators/auth.decorator';
 
+@Auth()
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {

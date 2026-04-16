@@ -13,7 +13,6 @@ import * as C from '../constants';
 
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshDto } from './dto/refresh.dto';
 import type { TimeTokenType, TokenPayloadType } from '../types';
 
 @Injectable()
@@ -46,7 +45,7 @@ export class AuthService {
       },
     });
 
-    return this.issueTokens(user);
+    return { id: user.id };
   }
 
   async login(dto: LoginDto) {
@@ -64,13 +63,22 @@ export class AuthService {
       throw new UnauthorizedException(C.WRONG_PASSWORD);
     }
 
-    return this.issueTokens(user);
+    return await this.issueTokens(user);
   }
 
-  async refresh(dto: RefreshDto) {
+  async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
+    }
+
+    if (refreshToken.split('.').length !== 3) {
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);// 403
+    }
+
     try {
-      const payload: TokenPayloadType = await this.jwt.verifyAsync(dto.refreshToken, {
+      const payload: TokenPayloadType = await this.jwt.verifyAsync(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
+
       });
 
       const user = await this.prisma.user.findUnique({
