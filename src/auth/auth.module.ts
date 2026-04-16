@@ -6,9 +6,14 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { AccessStrategy } from './strategies/access.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{
+      ttl: 60,          
+      limit: 5,
+    }]),
     PrismaModule,
     JwtModule.register({}),
   ],

@@ -14,6 +14,7 @@ import * as C from '../constants';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import type { TimeTokenType, TokenPayloadType } from '../types';
+import { invalidatedRefreshTokens } from './token-store';
 
 @Injectable()
 export class AuthService {
@@ -67,8 +68,8 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string) {
-    if (!refreshToken) {
-      throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
+    if (invalidatedRefreshTokens.has(refreshToken)) {
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
     }
 
     if (refreshToken.split('.').length !== 3) {
