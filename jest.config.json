@@ -3,7 +3,7 @@
     "ts",
     "js"
   ],
-  "rootDir": "./",
+  "rootDir": "./test",
   "testEnvironment": "node",
   "verbose": true,
   "transform": {
@@ -16,6 +16,6 @@
     "dotenv/config"
   ],
   "setupFilesAfterEnv": [
-    "<rootDir>/jest.env.ts"
+    "../jest.env.ts"
   ]
 }

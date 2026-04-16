@@ -72,6 +72,10 @@ export class AuthService {
       throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
     }
 
+    if (!refreshToken) {
+      throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
+    }
+
     if (refreshToken.split('.').length !== 3) {
       throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);// 403
     }

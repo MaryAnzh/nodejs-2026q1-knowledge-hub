@@ -1,7 +1,6 @@
 import { Controller, Post, Body, HttpCode, UnauthorizedException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
-import { Throttle } from '@nestjs/throttler';
 
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
@@ -9,6 +8,7 @@ import { LoginDto } from './dto/login.dto';
 
 import * as C from '../constants';
 import { invalidatedRefreshTokens } from './token-store';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags(C.AUTH)
 @Controller(C.ROUTES.AUTH)
@@ -19,7 +19,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Create new user' })
   @ApiResponse({ status: SC.CREATED }) //201
   @ApiResponse({ status: SC.BAD_REQUEST }) //400
-  @Throttle(5, 60)
+  @Throttle({ Option: { limit: 60, ttl: 5 } })
   async signup(@Body() dto: SignupDto) {
     return this.authService.signup(dto);
   }
@@ -30,7 +30,7 @@ export class AuthController {
   @ApiResponse({ status: SC.OK }) // 200
   @ApiResponse({ status: SC.BAD_REQUEST }) // 400
   @ApiResponse({ status: SC.FORBIDDEN }) // 403
-  @Throttle(5, 60)
+  @Throttle({ Option: { limit: 60, ttl: 5 } })
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
