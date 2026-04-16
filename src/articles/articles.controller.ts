@@ -30,7 +30,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) { }
+  constructor(private readonly service: ArticlesService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of articles' })

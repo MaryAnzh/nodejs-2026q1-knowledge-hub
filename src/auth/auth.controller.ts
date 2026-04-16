@@ -1,4 +1,10 @@
-import { Controller, Post, Body, HttpCode, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 
@@ -13,7 +19,7 @@ import { Throttle } from '@nestjs/throttler';
 @ApiTags(C.AUTH)
 @Controller(C.ROUTES.AUTH)
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
   @ApiOperation({ summary: 'Create new user' })

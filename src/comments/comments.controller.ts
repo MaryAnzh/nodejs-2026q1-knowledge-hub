@@ -52,8 +52,6 @@ export class CommentsController {
   @ApiResponse({ status: SC.CREATED, description: 'Comment created' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
   create(@Body() dto: CreateCommentDto) {
-    console.log('dto');
-    console.log(dto);
     return this.service.create(dto);
   }
 

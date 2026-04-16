@@ -18,14 +18,14 @@ import { invalidatedRefreshTokens } from './token-store';
 
 @Injectable()
 export class AuthService {
-  private ACCESS_TTL = process.env.JWT_ACCESS_TTL as TimeTokenType || '15m';
-  private REFRESH_TTL = process.env.JWT_REFRESH_TTL as TimeTokenType || '7d';
+  private ACCESS_TTL = (process.env.JWT_ACCESS_TTL as TimeTokenType) || '15m';
+  private REFRESH_TTL = (process.env.JWT_REFRESH_TTL as TimeTokenType) || '7d';
   private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
 
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-  ) { }
+  ) {}
 
   async signup(dto: SignupDto) {
     const exists = await this.prisma.user.findUnique({
@@ -77,14 +77,16 @@ export class AuthService {
     }
 
     if (refreshToken.split('.').length !== 3) {
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);// 403
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN); // 403
     }
 
     try {
-      const payload: TokenPayloadType = await this.jwt.verifyAsync(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
-
-      });
+      const payload: TokenPayloadType = await this.jwt.verifyAsync(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.userId },
@@ -102,10 +104,12 @@ export class AuthService {
 
   private async issueTokens({ id, login, role }: User) {
     const accessToken = await this.jwt.signAsync(
-      { userId: id, login, role }, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: this.ACCESS_TTL,
-    });
+      { userId: id, login, role },
+      {
+        secret: process.env.JWT_SECRET,
+        expiresIn: this.ACCESS_TTL,
+      },
+    );
 
     const refreshToken = await this.jwt.signAsync(
       { userId: id, login, role },

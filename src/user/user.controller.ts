@@ -28,7 +28,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 @ApiTags(C.USER)
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'Get all users' })

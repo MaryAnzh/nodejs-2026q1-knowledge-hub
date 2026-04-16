@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Article, Tag } from '@prisma/client';
 
 import * as C from '../constants';
@@ -10,7 +14,7 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private safeArticle({
     createdAt,
@@ -108,11 +112,11 @@ export class ArticlesService {
         updatedAt: now,
         tags: dto.tags
           ? {
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },
@@ -120,7 +124,11 @@ export class ArticlesService {
     return this.safeArticle(article);
   }
 
-  async update(id: string, dto: UpdateArticleDto, user: T.TokenPayloadType): Promise<T.ArticleType> {
+  async update(
+    id: string,
+    dto: UpdateArticleDto,
+    user: T.TokenPayloadType,
+  ): Promise<T.ArticleType> {
     const exists = await this.prisma.article.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
 
@@ -135,12 +143,12 @@ export class ArticlesService {
         updatedAt: new Date(),
         tags: dto.tags
           ? {
-            set: [],
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              set: [],
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },

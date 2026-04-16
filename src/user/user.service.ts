@@ -18,7 +18,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 export class UserService {
   private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
     return {
@@ -91,7 +91,11 @@ export class UserService {
     return this.safeUser(user);
   }
 
-  async update(id: string, dto: UpdateUserDto, { role, userId }: T.TokenPayloadType): Promise<T.ResponseUserType> {
+  async update(
+    id: string,
+    dto: UpdateUserDto,
+    { role, userId }: T.TokenPayloadType,
+  ): Promise<T.ResponseUserType> {
     if (role !== C.ADMIN && userId !== id) {
       throw new ForbiddenException(C.USER_UPDATE_FORBIDDEN);
     }
@@ -121,7 +125,6 @@ export class UserService {
         updatedAt: true,
       },
     });
-
 
     return this.safeUser(updated);
   }

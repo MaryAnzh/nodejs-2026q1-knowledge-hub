@@ -10,7 +10,6 @@ import { PrismaModule } from './prismaService/prisma.module';
 import { AuthModule } from './auth/auth.module';
 
 import { AccessGuard } from './auth/guards/access.guard';
-import { RolesGuard } from './auth/guards/roles.guard';
 
 import { AppController } from './app.controller';
 import { AppService } from './app-service';
@@ -32,7 +31,7 @@ import { AppService } from './app-service';
     {
       provide: APP_GUARD,
       useClass: AccessGuard, // check JWT
-    }
+    },
   ],
 })
 export class AppModule {

@@ -10,19 +10,17 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([{
-      ttl: 60,          
-      limit: 5,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60,
+        limit: 5,
+      },
+    ]),
     PrismaModule,
     JwtModule.register({}),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    AccessStrategy,
-    RefreshStrategy,
-  ],
-  exports: [AuthService]
+  providers: [AuthService, AccessStrategy, RefreshStrategy],
+  exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}
