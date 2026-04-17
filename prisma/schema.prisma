@@ -1,11 +1,9 @@
 generator client {
-  provider   = "prisma-client-js"
-  engineType = "binary"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -28,7 +26,6 @@ model User {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
-  // Relations
   articles  Article[]  @relation("UserArticles")
   comments  Comment[]  @relation("UserComments")
 }
@@ -37,8 +34,7 @@ model Category {
   id          String     @id @default(uuid())
   name        String
   description String?
-  
-  // Relations
+
   articles    Article[]  @relation("CategoryArticles")
 }
 
@@ -50,15 +46,14 @@ model Article {
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 
-  // Foreign keys
   authorId   String?
   categoryId String?
 
-  // Relations
   author     User?           @relation("UserArticles", fields: [authorId], references: [id], onDelete: SetNull)
   category   Category?       @relation("CategoryArticles", fields: [categoryId], references: [id], onDelete: SetNull)
   comments   Comment[]
   tags       Tag[]           @relation("ArticleTags")
+
   @@index([status])
   @@index([categoryId])
 }
@@ -68,11 +63,9 @@ model Comment {
   content   String
   createdAt DateTime  @default(now())
 
-  // Foreign keys
   authorId  String?
   articleId String
 
-  // Relations
   author    User?      @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
   article   Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
@@ -81,6 +74,5 @@ model Tag {
   id    String    @id @default(uuid())
   name  String    @unique
 
-  // Many-to-many
   articles Article[] @relation("ArticleTags")
 }

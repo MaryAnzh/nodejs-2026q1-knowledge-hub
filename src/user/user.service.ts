@@ -18,7 +18,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 export class UserService {
   private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
     return {
@@ -108,14 +108,16 @@ export class UserService {
       throw new NotFoundException(C.USER_NOT_FOUND);
     }
 
-    if (user.password !== dto.oldPassword) {
+    const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
+    if (!isMatch) {
       throw new ForbiddenException(C.WRONG_PASSWORD);
     }
 
+    const hashed = await bcrypt.hash(dto.newPassword, this.CRYPT_SALT);
     const updated = await this.prisma.user.update({
       where: { id },
       data: {
-        password: dto.newPassword,
+        password: hashed,
       },
       select: {
         id: true,
@@ -154,9 +156,18 @@ export class UserService {
       throw new NotFoundException(C.USER_NOT_FOUND);
     }
 
-    await this.prisma.user.delete({
-      where: { id },
-    });
+    await this.prisma.$transaction([
+      this.prisma.article.updateMany({
+        where: { authorId: id },
+        data: { authorId: null },
+      }),
+      this.prisma.comment.deleteMany({
+        where: { authorId: id },
+      }),
+      this.prisma.user.delete({
+        where: { id },
+      }),
+    ]);
     return null;
   }
 }

@@ -17,5 +17,6 @@
   ],
   "setupFilesAfterEnv": [
     "../jest.env.ts"
-  ]
+  ],
+  "globalSetup": "<rootDir>/setup/seedAdmin.ts"
 }
