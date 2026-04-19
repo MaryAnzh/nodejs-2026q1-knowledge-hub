@@ -9,12 +9,9 @@ import { Role } from '@prisma/client';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) { }
+  constructor(private reflector: Reflector) {}
 
   canActivate(ctx: ExecutionContext): boolean {
-    const className = ctx.getClass().name;
-    const handler = ctx.getHandler().name;
-
     const requiredRoles = this.reflector.get<Role[]>('roles', ctx.getHandler());
     const { user } = ctx.switchToHttp().getRequest();
 

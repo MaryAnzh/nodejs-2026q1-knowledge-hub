@@ -25,7 +25,7 @@ import { Role } from '@prisma/client';
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
-  constructor(private readonly service: CategoriesService) { }
+  constructor(private readonly service: CategoriesService) {}
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of categories' })
