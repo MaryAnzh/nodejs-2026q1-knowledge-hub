@@ -19,7 +19,7 @@ import { Throttle } from '@nestjs/throttler';
 @ApiTags(C.AUTH)
 @Controller(C.ROUTES.AUTH)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('signup')
   @ApiOperation({ summary: 'Create new user' })
@@ -52,6 +52,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @HttpCode(SC.OK) // 200
   async logout(@Body('refreshToken') refreshToken: string) {
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
