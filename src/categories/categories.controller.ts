@@ -25,7 +25,7 @@ import { Role } from '@prisma/client';
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
-  constructor(private readonly service: CategoriesService) {}
+  constructor(private readonly service: CategoriesService) { }
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of categories' })
@@ -41,16 +41,16 @@ export class CategoriesController {
     return this.service.findOne(id);
   }
 
-  @Roles(Role.admin, Role.editor)
   @Post()
+  @Roles(Role.admin)
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({ status: SC.CREATED, description: 'Category created' })
   create(@Body() dto: CreateCategoryDto) {
     return this.service.create(dto);
   }
 
-  @Roles(Role.admin, Role.editor)
   @Put(':id')
+  @Roles(Role.admin)
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({ status: SC.OK, description: 'Category updated' })

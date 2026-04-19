@@ -23,6 +23,8 @@ import * as C from '../constants';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { TokenPayloadType } from '../types';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @Auth()
 @ApiTags(C.COMMENTS)
@@ -48,6 +50,7 @@ export class CommentsController {
   }
 
   @Post()
+  @Roles(Role.editor, Role.admin)
   @ApiBody({ type: CreateCommentDto })
   @ApiResponse({ status: SC.CREATED, description: 'Comment created' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
@@ -56,6 +59,7 @@ export class CommentsController {
   }
 
   @Delete(':id')
+  @Roles(Role.editor, Role.admin)
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: SC.NO_CONTENT, description: 'Comment deleted' })
