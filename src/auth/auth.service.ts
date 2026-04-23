@@ -25,7 +25,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-  ) {}
+  ) { }
 
   async signup(dto: SignupDto) {
     const exists = await this.prisma.user.findUnique({
@@ -97,8 +97,11 @@ export class AuthService {
       }
 
       return this.issueTokens(user);
-    } catch {
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN); // 403
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
     }
   }
 
