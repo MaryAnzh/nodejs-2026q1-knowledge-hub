@@ -21,6 +21,8 @@ export const {
   USER_UPDATE_FORBIDDEN,
   INVALID_UUID_DTO,
   USer_ROLE_UPDATED,
+  INVALID_UUID_FORMAt,
+  INVALID_OR_MISSING_ACCESS_TOKEN,
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -44,4 +46,6 @@ export const {
   USER_UPDATE_FORBIDDEN: 'USer updated forbidden',
   INVALID_UUID_DTO: 'Invalid UUID or DTO',
   USer_ROLE_UPDATED: 'User role updated',
+  INVALID_UUID_FORMAt: 'Invalid uuid format',
+  INVALID_OR_MISSING_ACCESS_TOKEN: 'Invalid or missing access token'
 } as const;

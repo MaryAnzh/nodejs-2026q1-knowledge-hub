@@ -13,12 +13,24 @@ import { PrismaService } from '../prismaService/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserService {
-  private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
+  private CRYPT_SALT: number;
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService
+  ) {
+
+    this.CRYPT_SALT = Number(this.configService.get<number>('CRYPT_SALT', 10));
+  }
+
+  private async getHash(dtoPass: string) {
+    const salt = await bcrypt.genSalt(this.CRYPT_SALT);
+    return await bcrypt.hash(dtoPass, salt);
+  }
 
   private safeUser(u: Omit<User, 'password'>): T.ResponseUserType {
     return {
@@ -69,7 +81,7 @@ export class UserService {
 
   async create(dto: CreateUserDto): Promise<T.ResponseUserType> {
     const now = new Date();
-    const hashed = await bcrypt.hash(dto.password, this.CRYPT_SALT);
+    const hashed = await this.getHash(dto.password);
 
     const user = await this.prisma.user.create({
       data: {
@@ -112,8 +124,8 @@ export class UserService {
     if (!isMatch) {
       throw new ForbiddenException(C.WRONG_PASSWORD);
     }
+    const hashed = await this.getHash(dto.newPassword);
 
-    const hashed = await bcrypt.hash(dto.newPassword, this.CRYPT_SALT);
     const updated = await this.prisma.user.update({
       where: { id },
       data: {

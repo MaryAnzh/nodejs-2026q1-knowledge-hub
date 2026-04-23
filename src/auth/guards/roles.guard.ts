@@ -7,9 +7,10 @@ import {
 import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
 
+// export in Auth() decorator
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private reflector: Reflector) { }
 
   canActivate(ctx: ExecutionContext): boolean {
     const requiredRoles = this.reflector.get<Role[]>('roles', ctx.getHandler());

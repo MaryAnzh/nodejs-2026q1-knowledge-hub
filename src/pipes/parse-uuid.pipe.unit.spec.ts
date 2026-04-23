@@ -12,7 +12,7 @@ describe('ParseUUIDPipe', () => {
     });
 
     it('should throw BadRequestException for invalid UUID', () => {
-        expect(() => pipe.transform(C.NOT_UUID)).toThrow(BadRequestException);
-        expect(() => pipe.transform(C.NOT_UUID)).toThrow(C.INVALID_UUID_FORMAt);
+        expect(() => pipe.transform(C.INVALID_UUID_FORMAt)).toThrow(BadRequestException);
+        expect(() => pipe.transform(C.INVALID_UUID_FORMAt)).toThrow(C.INVALID_UUID_FORMAt);
     });
 });

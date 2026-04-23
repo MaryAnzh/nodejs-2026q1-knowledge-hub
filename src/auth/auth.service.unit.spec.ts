@@ -8,8 +8,8 @@ import { hash, compare } from 'bcryptjs';
 import * as Exc from '@nestjs/common';
 import { invalidatedRefreshTokens } from './token-store';
 
-import { createPrismaMock } from '../test-utils/createPrismaMock';
-import { createJwtMock } from '../test-utils/createJwtMock';
+import { createPrismaMock, createJwtMock, createConfigMock } from '../test-utils';
+import { ConfigService } from '@nestjs/config';
 
 vi.mock('bcryptjs', async () => ({
     hash: vi.fn(),
@@ -20,6 +20,7 @@ describe('AuthService (unit)', () => {
     let service: AuthService;
     let prisma: ReturnType<typeof createPrismaMock>;
     let jwt: Mocked<JwtService>;
+    let configService: Mocked<ConfigService>;
     const hashMock = hash as unknown as ReturnType<typeof vi.fn>;
     const compareMock = compare as unknown as ReturnType<typeof vi.fn>;
 
@@ -40,7 +41,13 @@ describe('AuthService (unit)', () => {
         vi.clearAllMocks();
         prisma = createPrismaMock();
         jwt = createJwtMock();
-        service = new AuthService(prisma as unknown as PrismaService, jwt);
+        configService = createConfigMock();
+
+        service = new AuthService(
+            prisma as unknown as PrismaService,
+            jwt,
+            configService
+        );
 
         invalidatedRefreshTokens.clear();
     })
