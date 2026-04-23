@@ -8,7 +8,7 @@ import { hash, compare } from 'bcryptjs';
 import * as Exc from '@nestjs/common';
 import { invalidatedRefreshTokens } from './token-store';
 
-import { createPrismaMock, createJwtMock, createConfigMock } from '../test-utils';
+import { createPrismaMock, createJwtMock, createConfigMock, ACCESS_TTL, TEST_KEY_VALUE, REFRESH_TTL, JWT_SECRET, JWT_REFRESH_SECRET, CRYPT_SALT } from '../test-utils';
 import { ConfigService } from '@nestjs/config';
 
 vi.mock('bcryptjs', async () => ({
@@ -168,7 +168,7 @@ describe('AuthService (unit)', () => {
             const result = await service.refresh(token);
 
             expect(jwt.verifyAsync).toHaveBeenCalledWith(token, {
-                secret: 'test_refresh_secret',
+                secret: TEST_KEY_VALUE[JWT_REFRESH_SECRET],
             });
 
             expect(result).toEqual({
@@ -198,13 +198,19 @@ describe('AuthService (unit)', () => {
             expect(jwt.signAsync).toHaveBeenNthCalledWith(
                 1,
                 { userId: id, login, role },
-                { secret: 'test_access_secret', expiresIn: '15m' }
+                {
+                    secret: TEST_KEY_VALUE[JWT_SECRET],        // "jwt_secret"
+                    expiresIn: TEST_KEY_VALUE[ACCESS_TTL],     // "15m"
+                }
             );
 
             expect(jwt.signAsync).toHaveBeenNthCalledWith(
                 2,
                 { userId: id, login, role },
-                { secret: 'test_refresh_secret', expiresIn: '7d' }
+                {
+                    secret: TEST_KEY_VALUE[JWT_REFRESH_SECRET], // "jwt_refresh_secret"
+                    expiresIn: TEST_KEY_VALUE[REFRESH_TTL],     // "7d"
+                }
             );
 
             expect(result).toEqual({ accessToken, refreshToken });
@@ -214,11 +220,11 @@ describe('AuthService (unit)', () => {
     // constructor, check ConfigService call
     describe('constructor', () => {
         it('should read all config values', () => {
-            expect(configService.get).toHaveBeenCalledWith('ACCESS_TTL', '15m');
-            expect(configService.get).toHaveBeenCalledWith('REFRESH_TTL', '7d');
-            expect(configService.get).toHaveBeenCalledWith('JWT_SECRET', 'jwt_secret');
-            expect(configService.get).toHaveBeenCalledWith('JWT_REFRESH_SECRET', 'jwt_refresh_secret');
-            expect(configService.get).toHaveBeenCalledWith('CRYPT_SALT', 10);
+            expect(configService.get).toHaveBeenCalledWith(ACCESS_TTL, TEST_KEY_VALUE[ACCESS_TTL]);
+            expect(configService.get).toHaveBeenCalledWith(REFRESH_TTL, TEST_KEY_VALUE[REFRESH_TTL]);
+            expect(configService.get).toHaveBeenCalledWith(JWT_SECRET, TEST_KEY_VALUE[JWT_SECRET]);
+            expect(configService.get).toHaveBeenCalledWith(JWT_REFRESH_SECRET, TEST_KEY_VALUE[JWT_REFRESH_SECRET]);
+            expect(configService.get).toHaveBeenCalledWith(CRYPT_SALT, TEST_KEY_VALUE[CRYPT_SALT]);
         });
     });
 });

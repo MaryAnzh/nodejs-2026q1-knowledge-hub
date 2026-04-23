@@ -106,7 +106,7 @@ export class UserService {
   async update(
     id: string,
     dto: UpdateUserDto,
-    { role, userId }: T.TokenPayloadType,
+    { role, userId }: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ResponseUserType> {
     if (role !== C.ADMIN && userId !== id) {
       throw new ForbiddenException(C.USER_UPDATE_FORBIDDEN);
