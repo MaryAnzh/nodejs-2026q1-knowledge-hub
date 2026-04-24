@@ -17,16 +17,8 @@ export class AccessGuard extends AuthGuard('jwt') {
 
   canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
-    const publicRoutes = [
-      '/auth/signup',
-      '/auth/login',
-      '/auth/refresh',
-      '/doc',
-      '/',
-      '/health'
-    ];
 
-    if (publicRoutes.includes(req.path)) {
+    if (C.PUBLIC_ROUTES.includes(req.path ?? req.url)) {
       return true;
     }
     return super.canActivate(context);

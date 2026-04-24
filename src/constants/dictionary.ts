@@ -23,6 +23,8 @@ export const {
   USer_ROLE_UPDATED,
   INVALID_UUID_FORMAt,
   INVALID_OR_MISSING_ACCESS_TOKEN,
+  TAGS_CANNOT_BE_EMPTY,
+  DUPLICATE_TAG,
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -47,5 +49,7 @@ export const {
   INVALID_UUID_DTO: 'Invalid UUID or DTO',
   USer_ROLE_UPDATED: 'User role updated',
   INVALID_UUID_FORMAt: 'Invalid uuid format',
-  INVALID_OR_MISSING_ACCESS_TOKEN: 'Invalid or missing access token'
+  INVALID_OR_MISSING_ACCESS_TOKEN: 'Invalid or missing access token',
+  TAGS_CANNOT_BE_EMPTY: 'Tags array cannot be empty',
+  DUPLICATE_TAG: 'Duplicate tags are not allowed',
 } as const;

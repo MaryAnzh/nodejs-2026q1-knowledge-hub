@@ -28,7 +28,7 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 @ApiTags(C.USER)
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'Get all users' })
@@ -65,7 +65,7 @@ export class UserController {
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateUserDto,
-    @User() user: T.TokenPayloadType,
+    @User() user: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ResponseUserType> {
     return this.userService.update(id, dto, user);
   }

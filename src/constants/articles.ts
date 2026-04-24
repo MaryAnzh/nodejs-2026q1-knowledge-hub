@@ -10,3 +10,9 @@ export const { ASC, DESC } = ARTICLE_SORT;
 
 export const FIRST_PAGE_COUNT = 1;
 export const ITEM_COUNT_IN_PAGE = 10;
+
+export const ARTICLE_STATUS_FLOW = {
+  draft: ['published'],
+  published: ['archived'],
+  archived: [],
+} as const;
