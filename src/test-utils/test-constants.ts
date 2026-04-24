@@ -1,3 +1,6 @@
+import { Article } from "@prisma/client";
+import { DRAFT, PUBLISHED } from "../constants";
+
 export const {
     TEST_ID,
     TEST_ID_2,
@@ -11,6 +14,9 @@ export const {
     TEST_SALT,
     TEST_WRONG_HASH,
     TEST_TOKEN,
+    UPDATED,
+    TEST_USER_ID,
+    TEST_USER_ID_2
 } = {
     TEST_ID: '1',
     TEST_ID_2: '2',
@@ -24,6 +30,9 @@ export const {
     TEST_NEW_HASH: 'new-hash',
     TEST_WRONG_HASH: 'wrong-hash',
     TEST_TOKEN: 'a.b.c',
+    UPDATED: 'Updated',
+    TEST_USER_ID: 'user_1',
+    TEST_USER_ID_2: 'user_2'
 } as const;
 
 export const {
@@ -38,3 +47,28 @@ export const {
         role: TEST_DEF_ROLE,
     } as const
 }
+
+export const TEST_ARTICLES: (Article & { tags: string[] })[] = [
+    {
+        id: TEST_ID,
+        title: 'Article 1',
+        content: 'article content',
+        authorId: null,
+        status: DRAFT,
+        categoryId: null,
+        createdAt: new Date(1777029786866),
+        updatedAt: new Date(1777029786866),
+        tags: []
+    },
+    {
+        id: TEST_ID_2,
+        title: 'Article 2',
+        content: 'article content 2',
+        authorId: null,
+        status: PUBLISHED,
+        categoryId: null,
+        createdAt: new Date(1777029786866),
+        updatedAt: new Date(1777029786866),
+        tags: []
+    },
+];

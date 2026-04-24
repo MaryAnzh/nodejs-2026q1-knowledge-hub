@@ -30,7 +30,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) {}
+  constructor(private readonly service: ArticlesService) { }
 
   @Get()
   @ApiResponse({ status: SC.OK, description: 'List of articles' })
@@ -92,7 +92,7 @@ export class ArticlesController {
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateArticleDto,
-    @User() user: T.TokenPayloadType,
+    @User() user: Omit<T.TokenPayloadType, 'login'>,
   ) {
     return this.service.update(id, dto, user);
   }
@@ -105,7 +105,7 @@ export class ArticlesController {
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' }) // 404
   delete(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @User() user: T.TokenPayloadType,
+    @User() user: Omit<T.TokenPayloadType, 'login'>,
   ) {
     return this.service.remove(id, user);
   }
