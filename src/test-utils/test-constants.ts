@@ -56,8 +56,8 @@ export const TEST_ARTICLES: (Article & { tags: string[] })[] = [
         authorId: null,
         status: DRAFT,
         categoryId: null,
-        createdAt: new Date(1777029786866),
-        updatedAt: new Date(1777029786866),
+        createdAt: new Date('01/01/2026'),
+        updatedAt: new Date('01/01/2026'),
         tags: []
     },
     {
@@ -67,8 +67,31 @@ export const TEST_ARTICLES: (Article & { tags: string[] })[] = [
         authorId: null,
         status: PUBLISHED,
         categoryId: null,
-        createdAt: new Date(1777029786866),
-        updatedAt: new Date(1777029786866),
+        createdAt: new Date('01/02/2026'),
+        updatedAt: new Date('01/02/2026'),
         tags: []
+    },
+];
+
+export const TEST_COMMENTS = [
+    {
+        id: TEST_ID,
+        content: 'comment text',
+        articleId: TEST_ID_2,
+        authorId: TEST_USER_ID,
+        createdAt: new Date(1777029786866),
+    },
+];
+
+export const TEST_CATEGORIES = [
+    {
+        id: 'cat1',
+        name: 'Category 1',
+        description: 'Description 1',
+    },
+    {
+        id: 'cat2',
+        name: 'Category 2',
+        description: 'Description 2',
     },
 ];

@@ -13,7 +13,7 @@ import { TokenPayloadType } from '../types';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private safe(comment: Comment) {
     return {
@@ -75,7 +75,7 @@ export class CommentsService {
     return this.safe(updated);
   }
 
-  async remove(id: string, user: TokenPayloadType) {
+  async remove(id: string, user: Omit<TokenPayloadType, 'login'>) {
     const exists = await this.prisma.comment.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
 

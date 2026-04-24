@@ -30,7 +30,7 @@ import { Role } from '@prisma/client';
 @ApiTags(C.COMMENTS)
 @Controller(C.ROUTES.COMMENT)
 export class CommentsController {
-  constructor(private readonly service: CommentsService) {}
+  constructor(private readonly service: CommentsService) { }
 
   @Get()
   @ApiQuery({ name: 'articleId', required: false })
@@ -67,7 +67,7 @@ export class CommentsController {
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Comment not found' })
   delete(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @User() user: TokenPayloadType,
+    @User() user: Omit<TokenPayloadType, 'login'>,
   ) {
     return this.service.remove(id, user);
   }

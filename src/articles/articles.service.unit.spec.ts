@@ -175,4 +175,98 @@ describe('ArticlesService (unit)', () => {
             expect(result.status).toBe(newStatus);
         }
     );
+
+    it('should call prisma with correct sorting params', async () => {
+        prisma.article.findMany.mockResolvedValue(TEST_UTIL.TEST_ARTICLES);
+        prisma.article.count.mockResolvedValue(TEST_UTIL.TEST_ARTICLES.length);
+        prisma.$transaction.mockImplementation((calls) => Promise.all(calls));
+
+        await service.findAllWithQuery({
+            page: 1,
+            limit: 10,
+            sortBy: 'createdAt',
+            order: 'desc',
+            status: undefined,
+            categoryId: undefined,
+            tag: undefined,
+        });
+
+        expect(prisma.article.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                orderBy: { createdAt: 'desc' },
+                skip: 0,
+                take: 10,
+            }),
+        );
+    });
+
+    it('should filter by status', async () => {
+        prisma.article.count.mockResolvedValue(1);
+        prisma.article.findMany.mockResolvedValue([TEST_UTIL.TEST_ARTICLES[1]]);
+        prisma.$transaction.mockImplementation((calls) => Promise.all(calls));
+
+        await service.findAllWithQuery({
+            page: 1,
+            limit: 10,
+            sortBy: undefined,
+            order: undefined,
+            status: C.PUBLISHED,
+            categoryId: undefined,
+            tag: undefined,
+        });
+
+        expect(prisma.article.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { status: C.PUBLISHED },
+            }),
+        );
+    });
+
+    it('should filter by categoryId', async () => {
+        const categoryId = 'category_1';
+        const article = { ...TEST_UTIL.TEST_ARTICLES[0], categoryId }
+        prisma.article.count.mockResolvedValue(1);
+        prisma.article.findMany.mockResolvedValue([article]);
+        prisma.$transaction.mockImplementation((calls) => Promise.all(calls));
+
+        await service.findAllWithQuery({
+            page: 1,
+            limit: 10,
+            sortBy: undefined,
+            order: undefined,
+            status: undefined,
+            categoryId,
+            tag: undefined,
+        });
+
+        expect(prisma.article.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { categoryId },
+            }),
+        );
+    });
+
+    it('should filter by tag', async () => {
+        const tag = 'test';
+        const article = { ...TEST_UTIL.TEST_ARTICLES[0], tags: [tag] };
+        prisma.article.count.mockResolvedValue(1);
+        prisma.article.findMany.mockResolvedValue([article]);
+        prisma.$transaction.mockImplementation((calls) => Promise.all(calls));
+
+        await service.findAllWithQuery({
+            page: 1,
+            limit: 10,
+            sortBy: undefined,
+            order: undefined,
+            status: undefined,
+            categoryId: undefined,
+            tag,
+        });
+
+        expect(prisma.article.findMany).toHaveBeenCalledWith(
+            expect.objectContaining({
+                where: { tags: tag ? { some: { name: tag } } : undefined },
+            }),
+        );
+    });
 });
