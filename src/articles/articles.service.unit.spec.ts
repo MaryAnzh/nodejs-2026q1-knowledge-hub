@@ -4,7 +4,7 @@ import { PrismaService } from '../prismaService/prisma.service';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import * as TEST_UTIL from '../test-utils';
 import * as C from '../constants';
-import { Article } from '@prisma/client';
+import { Article, ArticleStatus } from '@prisma/client';
 
 describe('ArticlesService (unit)', () => {
     let prisma: ReturnType<typeof TEST_UTIL.createPrismaMock>;
@@ -133,4 +133,46 @@ describe('ArticlesService (unit)', () => {
             service.remove(TEST_UTIL.TEST_ID, { userId: 'x', role: C.ADMIN }),
         ).rejects.toThrow(NotFoundException);
     });
+
+    it.each([
+        [C.DRAFT, C.ARCHIVED],
+        [C.PUBLISHED, C.DRAFT,],
+        [C.ARCHIVED, C.DRAFT,],
+        [C.ARCHIVED, C.PUBLISHED],
+    ])(
+        'should throw ForbiddenException for invalid status transition %s → %s',
+        async (oldStatus, newStatus) => {
+            const article = { ...TEST_UTIL.TEST_ARTICLES[0], status: oldStatus, authorId: TEST_UTIL.TEST_USER_ID };
+            prisma.article.findUnique.mockResolvedValue(article);
+
+            await expect(
+                service.update(article.id, { status: newStatus }, { userId: 'user1', role: C.EDITOR })
+            ).rejects.toThrow(ForbiddenException);
+        }
+    );
+
+    it.each([
+        [C.DRAFT, C.PUBLISHED],
+        [C.PUBLISHED, C.ARCHIVED],
+    ])(
+        'should allow valid status transition %s → %s',
+        async (oldStatus, newStatus) => {
+            const authorId = TEST_UTIL.TEST_USER_ID;
+            const article = { ...TEST_UTIL.TEST_ARTICLES[0], status: oldStatus, authorId };
+            prisma.article.findUnique.mockResolvedValue(article);
+
+            prisma.article.update.mockResolvedValue({
+                ...article,
+                status: newStatus,
+            });
+
+            const result = await service.update(
+                article.id,
+                { status: newStatus },
+                { userId: authorId, role: C.EDITOR }
+            );
+
+            expect(result.status).toBe(newStatus);
+        }
+    );
 });

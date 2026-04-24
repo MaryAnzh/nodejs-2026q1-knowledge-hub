@@ -158,11 +158,11 @@ export class ArticlesService {
     if (user.role === C.EDITOR && exists.authorId !== user.userId) {
       throw new ForbiddenException(C.EDIT_EXCEPTION);
     }
-    // if add this test from test folder fail
-    // if (dto.status) {
-    //   this.validateStatusTransition(exists.status, dto.status);
-    // }
+    if (dto.status) {
+      this.validateStatusTransition(exists.status, dto.status);
+    }
 
+    // if add this test from test folder fail
     // if (dto.tags && dto.tags.length === 0) {
     //   throw new ForbiddenException(C.TAGS_CANNOT_BE_EMPTY);
     // }
