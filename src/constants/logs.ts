@@ -1,0 +1,23 @@
+export const {
+    APP,
+    LOG,
+    ERROR,
+    WARN,
+    DEBUG,
+    VERBOSE,
+    FAILED_TO_ROTATE,
+    FAILED_TO_CHECK_LOG_FILE,
+    NO_CONTEXT,
+    FAILED_TO_WRIT_LOG_FILE,
+} = {
+    APP: 'app',
+    LOG: 'log',
+    ERROR: 'error',
+    WARN: 'warn',
+    DEBUG: 'debug',
+    VERBOSE: 'verbose',
+    FAILED_TO_ROTATE: 'Failed to rotate log file',
+    FAILED_TO_CHECK_LOG_FILE: 'Failed to check log file size',
+    NO_CONTEXT: '..no context..',
+    FAILED_TO_WRIT_LOG_FILE: 'Failed to write log file',
+} as const;
