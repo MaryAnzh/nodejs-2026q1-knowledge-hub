@@ -1,13 +1,12 @@
 import { promises as fs } from 'fs'; import * as path from 'path';
-import { Logger, LogLevel } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 
 import * as C from '../constants';
 import { LogLevelType, LoggerFormatType } from '../types/logs';
 
-export class AppLogger extends Logger {
+export class AppLogger extends ConsoleLogger {
   private readonly isDev = process.env.NODE_ENV === 'development';
-  private logFilePath = path.join(process.cwd(), `${C.APP}.${C.LOG}`);
-  // KB → bytes
+  private logFilePath = path.join(process.cwd(), 'logs', `${C.APP}.${C.LOG}`);  // KB → bytes
   private maxSize = Number(process.env.LOG_MAX_FILE_SIZE ?? 1024) * 1024;
 
   private async rotateFile() {

@@ -22,7 +22,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
+    volumes:
+      - ./logs:/app/logs
   db:
     image: postgres:16-alpine
     container_name: knowledge-hub-db

@@ -3,10 +3,10 @@ FROM node:24 AS builder
 
 WORKDIR /app
 
-# Передаём DATABASE_URL в момент сборки
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
+RUN mkdir -p /app/logs && chown -R node:node /app/logs
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 
@@ -26,7 +26,6 @@ FROM node:24 AS production
 ENV NODE_ENV=production
 WORKDIR /app
 
-# Передаём DATABASE_URL в runtime-этап
 ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
@@ -40,7 +39,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/nest-cli.json ./
 COPY --from=builder /app/tsconfig*.json ./
 
+RUN mkdir -p /app/logs
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
+RUN chown -R appuser:appgroup /app/logs
 USER appuser
 
 EXPOSE 4000
