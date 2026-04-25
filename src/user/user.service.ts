@@ -21,9 +21,8 @@ export class UserService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {
-
     this.CRYPT_SALT = Number(this.configService.get<number>('CRYPT_SALT', 10));
   }
 

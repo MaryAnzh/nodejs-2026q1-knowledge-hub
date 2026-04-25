@@ -39,7 +39,7 @@ export class ArticlesService {
     }
   }
 
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async findAll({
     categoryId,
@@ -135,11 +135,11 @@ export class ArticlesService {
         updatedAt: now,
         tags: dto.tags
           ? {
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },
@@ -181,12 +181,12 @@ export class ArticlesService {
         updatedAt: new Date(),
         tags: dto.tags
           ? {
-            set: [],
-            connectOrCreate: dto.tags.map((name) => ({
-              where: { name },
-              create: { name },
-            })),
-          }
+              set: [],
+              connectOrCreate: dto.tags.map((name) => ({
+                where: { name },
+                create: { name },
+              })),
+            }
           : undefined,
       },
       include: { tags: true },

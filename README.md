@@ -8,6 +8,7 @@ git clone https://github.com/MaryAnzh/nodejs-2026q1-knowledge-hub.git
 cd nodejs-2026q1-knowledge-hub
 2.
 git checkout develop_testing_task_8a
+add .env from .env-examlpe
 
 3. Start the application
 bash

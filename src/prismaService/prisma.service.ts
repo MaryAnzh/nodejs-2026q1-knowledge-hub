@@ -6,10 +6,9 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy {
-  constructor(
-    private readonly configService: ConfigService
-  ) {
+  implements OnModuleInit, OnModuleDestroy
+{
+  constructor(private readonly configService: ConfigService) {
     super({
       adapter: new PrismaPg({
         connectionString: configService.get<string>('DATABASE_URL', ''),

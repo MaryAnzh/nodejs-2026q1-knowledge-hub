@@ -13,5 +13,5 @@ export const PUBLIC_ROUTES = [
   '/auth/refresh',
   '/doc',
   '/',
-  '/health'
+  '/health',
 ];

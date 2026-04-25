@@ -20,7 +20,7 @@ import { invalidatedRefreshTokens } from './token-store';
 @Injectable()
 export class AuthService {
   private ACCESS_TTL: TimeTokenType;
-  private REFRESH_TTL: TimeTokenType
+  private REFRESH_TTL: TimeTokenType;
   private JWT_REFRESH_SECRET: string;
   private JWT_SECRET: string;
   private CRYPT_SALT: number;
@@ -28,12 +28,15 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
     this.ACCESS_TTL = this.configService.get('ACCESS_TTL', '15m');
     this.REFRESH_TTL = this.configService.get('REFRESH_TTL', '7d');
     this.JWT_SECRET = this.configService.get('JWT_SECRET', 'jwt_secret');
-    this.JWT_REFRESH_SECRET = this.configService.get('JWT_REFRESH_SECRET', 'jwt_refresh_secret');
+    this.JWT_REFRESH_SECRET = this.configService.get(
+      'JWT_REFRESH_SECRET',
+      'jwt_refresh_secret',
+    );
     this.CRYPT_SALT = Number(this.configService.get<number>('CRYPT_SALT', 10));
   }
 

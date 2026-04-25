@@ -1,4 +1,4 @@
-import { ConfigurableModuleBuilder, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PrismaModule } from '../prismaService/prisma.module';
 
 import { AuthController } from './auth.controller';
@@ -25,4 +25,4 @@ import { ConfigModule } from '@nestjs/config';
   providers: [AuthService, AccessStrategy, RefreshStrategy],
   exports: [AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

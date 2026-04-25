@@ -3,241 +3,242 @@ import { UserService } from './user.service';
 import { PrismaService } from '../prismaService/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
-import { createPrismaMock, createConfigMock, TEST_KEY_VALUE, CRYPT_SALT } from '../test-utils';
+import {
+  createPrismaMock,
+  createConfigMock,
+  TEST_KEY_VALUE,
+  CRYPT_SALT,
+} from '../test-utils';
 import { VIEWER, ADMIN } from '../constants';
 
 vi.mock('bcryptjs', () => ({
-    genSalt: vi.fn(),
-    hash: vi.fn(),
-    compare: vi.fn(),
+  genSalt: vi.fn(),
+  hash: vi.fn(),
+  compare: vi.fn(),
 }));
 
 describe('UserService (unit)', () => {
-    let service: UserService;
-    let prisma: ReturnType<typeof createPrismaMock>;
-    let config: Mocked<ConfigService>;
+  let service: UserService;
+  let prisma: ReturnType<typeof createPrismaMock>;
+  let config: Mocked<ConfigService>;
 
-    const genSaltMock = bcrypt.genSalt as unknown as ReturnType<typeof vi.fn>;
-    const hashMock = bcrypt.hash as unknown as ReturnType<typeof vi.fn>;
-    const compareMock = bcrypt.compare as unknown as ReturnType<typeof vi.fn>;
+  const genSaltMock = bcrypt.genSalt as unknown as ReturnType<typeof vi.fn>;
+  const hashMock = bcrypt.hash as unknown as ReturnType<typeof vi.fn>;
+  const compareMock = bcrypt.compare as unknown as ReturnType<typeof vi.fn>;
 
-    const id = '1';
-    const id2 = '2';
-    const login = 'Jon';
-    const password = '123456';
-    const hashed = 'hashed-pass';
-    const noHash = 'no-hash';
-    const now = new Date();
-    const salt = 'salt';
-    const oldPassword = 'old';
-    const newPassword = 'new';
-    const dto = { login, password };
+  const id = '1';
+  const id2 = '2';
+  const login = 'Jon';
+  const password = '123456';
+  const hashed = 'hashed-pass';
+  const now = new Date();
+  const salt = 'salt';
+  const oldPassword = 'old';
+  const newPassword = 'new';
+  const dto = { login, password };
 
-    beforeEach(() => {
-        vi.clearAllMocks();
-        prisma = createPrismaMock();
-        config = createConfigMock();
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prisma = createPrismaMock();
+    config = createConfigMock();
 
-        service = new UserService(
-            prisma as unknown as PrismaService,
-            config
-        );
+    service = new UserService(prisma as unknown as PrismaService, config);
+  });
+
+  // findAll
+  describe('findAll', () => {
+    it('should return mapped users', async () => {
+      prisma.user.findMany.mockResolvedValue([
+        {
+          id,
+          login,
+          role: Role.viewer,
+          createdAt: now,
+          updatedAt: now,
+        },
+      ]);
+
+      const result = await service.findAll();
+
+      expect(result).toEqual([
+        {
+          id,
+          login,
+          role: Role.viewer,
+          createdAt: now.getTime(),
+          updatedAt: now.getTime(),
+        },
+      ]);
+    });
+  });
+
+  // findOne
+  describe('findOne', () => {
+    it('should throw if user not found', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
     });
 
-    // findAll
-    describe('findAll', () => {
-        it('should return mapped users', async () => {
-            prisma.user.findMany.mockResolvedValue([
-                {
-                    id,
-                    login,
-                    role: Role.viewer,
-                    createdAt: now,
-                    updatedAt: now,
-                },
-            ]);
+    it('should return mapped user', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id,
+        login,
+        role: Role.viewer,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-            const result = await service.findAll();
+      const result = await service.findOne(id);
 
-            expect(result).toEqual([
-                {
-                    id,
-                    login,
-                    role: Role.viewer,
-                    createdAt: now.getTime(),
-                    updatedAt: now.getTime(),
-                },
-            ]);
-        });
+      expect(result).toEqual({
+        id,
+        login,
+        role: Role.viewer,
+        createdAt: now.getTime(),
+        updatedAt: now.getTime(),
+      });
+    });
+  });
+
+  // create
+  describe('create', () => {
+    it('should hash password and create user', async () => {
+      genSaltMock.mockResolvedValue(salt);
+      hashMock.mockResolvedValue(hashed);
+
+      prisma.user.create.mockResolvedValue({
+        id,
+        login,
+        role: VIEWER,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      const result = await service.create(dto);
+
+      expect(genSaltMock).toHaveBeenCalledWith(TEST_KEY_VALUE[CRYPT_SALT]);
+      expect(hashMock).toHaveBeenCalledWith(password, salt);
+
+      expect(result).toEqual({
+        id,
+        login,
+        role: VIEWER,
+        createdAt: now.getTime(),
+        updatedAt: now.getTime(),
+      });
+    });
+  });
+
+  // update
+  describe('update', () => {
+    const dto = {
+      oldPassword,
+      newPassword,
+    };
+
+    it('should throw Forbidden if no rights', async () => {
+      await expect(
+        service.update(id, dto, { role: VIEWER, userId: id2 }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
-    // findOne
-    describe('findOne', () => {
-        it('should throw if user not found', async () => {
-            prisma.user.findUnique.mockResolvedValue(null);
-            await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
-        });
+    it('should throw NotFound if user not found', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
 
-        it('should return mapped user', async () => {
-            prisma.user.findUnique.mockResolvedValue({
-                id,
-                login,
-                role: Role.viewer,
-                createdAt: now,
-                updatedAt: now,
-            });
-
-            const result = await service.findOne(id);
-
-            expect(result).toEqual({
-                id,
-                login,
-                role: Role.viewer,
-                createdAt: now.getTime(),
-                updatedAt: now.getTime(),
-            });
-        });
+      await expect(
+        service.update(id, dto, { role: ADMIN, userId: id2 }),
+      ).rejects.toThrow(NotFoundException);
     });
 
-    // create
-    describe('create', () => {
-        it('should hash password and create user', async () => {
-            genSaltMock.mockResolvedValue(salt);
-            hashMock.mockResolvedValue(hashed);
+    it('should throw Forbidden if password mismatch', async () => {
+      prisma.user.findUnique.mockResolvedValue({ password: hashed });
+      compareMock.mockResolvedValue(false);
 
-            prisma.user.create.mockResolvedValue({
-                id,
-                login,
-                role: VIEWER,
-                createdAt: now,
-                updatedAt: now,
-            });
-
-            const result = await service.create(dto);
-
-            expect(genSaltMock).toHaveBeenCalledWith(TEST_KEY_VALUE[CRYPT_SALT]);
-            expect(hashMock).toHaveBeenCalledWith(password, salt);
-
-            expect(result).toEqual({
-                id,
-                login,
-                role: VIEWER,
-                createdAt: now.getTime(),
-                updatedAt: now.getTime(),
-            });
-        });
+      await expect(
+        service.update(id, dto, { role: ADMIN, userId: id2 }),
+      ).rejects.toThrow(ForbiddenException);
     });
 
-    // update
-    describe('update', () => {
-        const dto = {
-            oldPassword,
-            newPassword,
-        };
+    it('should update password', async () => {
+      prisma.user.findUnique.mockResolvedValue({ password: hashed });
+      compareMock.mockResolvedValue(true);
 
-        it('should throw Forbidden if no rights', async () => {
-            await expect(
-                service.update(id, dto, { role: VIEWER, userId: id2 })
-            ).rejects.toThrow(ForbiddenException);
-        });
+      genSaltMock.mockResolvedValue(salt);
+      hashMock.mockResolvedValue('new-hash');
 
-        it('should throw NotFound if user not found', async () => {
-            prisma.user.findUnique.mockResolvedValue(null);
+      prisma.user.update.mockResolvedValue({
+        id,
+        login,
+        role: VIEWER,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-            await expect(
-                service.update(id, dto, { role: ADMIN, userId: id2 })
-            ).rejects.toThrow(NotFoundException);
-        });
+      const result = await service.update(id, dto, {
+        role: ADMIN,
+        userId: id2,
+      });
 
-        it('should throw Forbidden if password mismatch', async () => {
-            prisma.user.findUnique.mockResolvedValue({ password: hashed });
-            compareMock.mockResolvedValue(false);
+      expect(compareMock).toHaveBeenCalledWith(oldPassword, hashed);
+      expect(hashMock).toHaveBeenCalledWith(newPassword, salt);
 
-            await expect(
-                service.update(id, dto, { role: ADMIN, userId: id2 })
-            ).rejects.toThrow(ForbiddenException);
-        });
+      expect(result).toEqual({
+        id,
+        login,
+        role: VIEWER,
+        createdAt: now.getTime(),
+        updatedAt: now.getTime(),
+      });
+    });
+  });
 
-        it('should update password', async () => {
-            prisma.user.findUnique.mockResolvedValue({ password: hashed });
-            compareMock.mockResolvedValue(true);
+  // updateRole
+  describe('updateRole', () => {
+    it('should throw if user not found', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
 
-            genSaltMock.mockResolvedValue(salt);
-            hashMock.mockResolvedValue('new-hash');
-
-            prisma.user.update.mockResolvedValue({
-                id,
-                login,
-                role: VIEWER,
-                createdAt: now,
-                updatedAt: now,
-            });
-
-            const result = await service.update(id, dto, {
-                role: ADMIN,
-                userId: id2,
-            });
-
-            expect(compareMock).toHaveBeenCalledWith(oldPassword, hashed);
-            expect(hashMock).toHaveBeenCalledWith(newPassword, salt);
-
-            expect(result).toEqual({
-                id,
-                login,
-                role: VIEWER,
-                createdAt: now.getTime(),
-                updatedAt: now.getTime(),
-            });
-        });
+      await expect(service.updateRole(id, { role: ADMIN })).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
-    // updateRole
-    describe('updateRole', () => {
-        it('should throw if user not found', async () => {
-            prisma.user.findUnique.mockResolvedValue(null);
+    it('should update role', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id });
 
-            await expect(
-                service.updateRole(id, { role: ADMIN })
-            ).rejects.toThrow(NotFoundException);
-        });
+      prisma.user.update.mockResolvedValue({
+        id,
+        login,
+        role: ADMIN,
+        createdAt: now,
+        updatedAt: now,
+      });
 
-        it('should update role', async () => {
-            prisma.user.findUnique.mockResolvedValue({ id });
+      const result = await service.updateRole(id, { role: ADMIN });
 
-            prisma.user.update.mockResolvedValue({
-                id,
-                login,
-                role: ADMIN,
-                createdAt: now,
-                updatedAt: now,
-            });
+      expect(result.role).toBe(ADMIN);
+    });
+  });
 
-            const result = await service.updateRole(id, { role: ADMIN });
+  // remove
+  describe('remove', () => {
+    it('should throw if user not found', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
 
-            expect(result.role).toBe(ADMIN);
-        });
+      await expect(service.remove(id)).rejects.toThrow(NotFoundException);
     });
 
-    // remove
-    describe('remove', () => {
-        it('should throw if user not found', async () => {
-            prisma.user.findUnique.mockResolvedValue(null);
+    it('should run transaction and return null', async () => {
+      prisma.user.findUnique.mockResolvedValue({ id });
 
-            await expect(service.remove(id)).rejects.toThrow(NotFoundException);
-        });
+      prisma.$transaction.mockResolvedValue(null);
 
-        it('should run transaction and return null', async () => {
-            prisma.user.findUnique.mockResolvedValue({ id });
+      const result = await service.remove(id);
 
-            prisma.$transaction.mockResolvedValue(null);
-
-            const result = await service.remove(id);
-
-            expect(prisma.$transaction).toHaveBeenCalled();
-            expect(result).toBeNull();
-        });
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(result).toBeNull();
     });
+  });
 });

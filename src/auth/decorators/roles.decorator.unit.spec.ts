@@ -4,13 +4,13 @@ import { SetMetadata } from '@nestjs/common';
 import { ADMIN, EDITOR } from '../../constants';
 
 vi.mock('@nestjs/common', () => ({
-    SetMetadata: vi.fn(),
+  SetMetadata: vi.fn(),
 }));
 
 describe('Roles decorator (unit)', () => {
-    it('should call SetMetadata with roles', () => {
-        Roles(ADMIN, EDITOR);
+  it('should call SetMetadata with roles', () => {
+    Roles(ADMIN, EDITOR);
 
-        expect(SetMetadata).toHaveBeenCalledWith('roles', [ADMIN, EDITOR]);
-    });
+    expect(SetMetadata).toHaveBeenCalledWith('roles', [ADMIN, EDITOR]);
+  });
 });
