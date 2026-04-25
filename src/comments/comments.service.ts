@@ -75,7 +75,7 @@ export class CommentsService {
     return this.safe(updated);
   }
 
-  async remove(id: string, user: TokenPayloadType) {
+  async remove(id: string, user: Omit<TokenPayloadType, 'login'>) {
     const exists = await this.prisma.comment.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
 

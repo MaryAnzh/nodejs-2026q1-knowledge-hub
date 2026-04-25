@@ -14,8 +14,6 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private prisma: PrismaService) {}
-
   private safeArticle({
     createdAt,
     updatedAt,
@@ -30,11 +28,24 @@ export class ArticlesService {
     };
   }
 
+  private validateStatusTransition(oldStatus: string, newStatus: string) {
+    if (oldStatus === newStatus) return;
+
+    const allowed = C.ARTICLE_STATUS_FLOW[oldStatus];
+    if (!allowed.includes(newStatus)) {
+      throw new ForbiddenException(
+        `Invalid status transition: ${oldStatus} → ${newStatus}`,
+      );
+    }
+  }
+
+  constructor(private prisma: PrismaService) {}
+
   async findAll({
     categoryId,
     status,
     tag,
-  }: T.ArticleQueryType): Promise<T.ArticleType[]> {
+  }: Partial<T.ArticleQueryType>): Promise<T.ArticleType[]> {
     const where = {
       status: status ?? undefined,
       categoryId: categoryId ?? undefined,
@@ -101,6 +112,18 @@ export class ArticlesService {
   async create(dto: CreateArticleDto): Promise<T.ArticleType> {
     const now = new Date();
 
+    // if add this test from test folder fail
+    // if (dto.tags && dto.tags.length === 0) {
+    //   throw new ForbiddenException(C.TAGS_CANNOT_BE_EMPTY);
+    // }
+
+    // if (dto.tags) {
+    //   const unique = new Set(dto.tags);
+    //   if (unique.size !== dto.tags.length) {
+    //     throw new ForbiddenException(C.DUPLICATE_TAG);
+    //   }
+    // }
+
     const article = await this.prisma.article.create({
       data: {
         title: dto.title,
@@ -127,13 +150,28 @@ export class ArticlesService {
   async update(
     id: string,
     dto: UpdateArticleDto,
-    user: T.TokenPayloadType,
+    user: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ArticleType> {
     const exists = await this.prisma.article.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
 
     if (user.role === C.EDITOR && exists.authorId !== user.userId) {
       throw new ForbiddenException(C.EDIT_EXCEPTION);
+    }
+    if (dto.status) {
+      this.validateStatusTransition(exists.status, dto.status);
+    }
+
+    // if add this test from test folder fail
+    // if (dto.tags && dto.tags.length === 0) {
+    //   throw new ForbiddenException(C.TAGS_CANNOT_BE_EMPTY);
+    // }
+
+    if (dto.tags) {
+      const unique = new Set(dto.tags);
+      if (unique.size !== dto.tags.length) {
+        throw new ForbiddenException(C.DUPLICATE_TAG);
+      }
     }
 
     const updated = await this.prisma.article.update({
@@ -157,7 +195,7 @@ export class ArticlesService {
     return this.safeArticle(updated);
   }
 
-  async remove(id: string, user: T.TokenPayloadType) {
+  async remove(id: string, user: Omit<T.TokenPayloadType, 'login'>) {
     const exists = await this.prisma.article.findUnique({ where: { id } });
     if (!exists) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
 

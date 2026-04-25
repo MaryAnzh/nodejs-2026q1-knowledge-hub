@@ -65,7 +65,7 @@ export class UserController {
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateUserDto,
-    @User() user: T.TokenPayloadType,
+    @User() user: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ResponseUserType> {
     return this.userService.update(id, dto, user);
   }

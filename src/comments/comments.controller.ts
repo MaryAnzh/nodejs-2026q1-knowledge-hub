@@ -67,7 +67,7 @@ export class CommentsController {
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Comment not found' })
   delete(
     @Param('id', new ParseUUIDPipe()) id: string,
-    @User() user: TokenPayloadType,
+    @User() user: Omit<TokenPayloadType, 'login'>,
   ) {
     return this.service.remove(id, user);
   }

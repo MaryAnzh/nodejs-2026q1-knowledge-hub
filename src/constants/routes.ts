@@ -6,3 +6,12 @@ export const ROUTES = {
   HEALTH: '/health',
   AUTH: '/auth',
 } as const;
+
+export const PUBLIC_ROUTES = [
+  '/auth/signup',
+  '/auth/login',
+  '/auth/refresh',
+  '/doc',
+  '/',
+  '/health',
+];

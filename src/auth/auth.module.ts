@@ -7,9 +7,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { AccessStrategy } from './strategies/access.strategy';
 import { RefreshStrategy } from './strategies/refresh.strategy';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60,

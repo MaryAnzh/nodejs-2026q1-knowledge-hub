@@ -7,6 +7,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { Role, User } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
 
 import { PrismaService } from '../prismaService/prisma.service';
 import * as C from '../constants';
@@ -18,14 +19,26 @@ import { invalidatedRefreshTokens } from './token-store';
 
 @Injectable()
 export class AuthService {
-  private ACCESS_TTL = (process.env.JWT_ACCESS_TTL as TimeTokenType) || '15m';
-  private REFRESH_TTL = (process.env.JWT_REFRESH_TTL as TimeTokenType) || '7d';
-  private CRYPT_SALT = Number(process.env.CRYPT_SALT) ?? 10;
+  private ACCESS_TTL: TimeTokenType;
+  private REFRESH_TTL: TimeTokenType;
+  private JWT_REFRESH_SECRET: string;
+  private JWT_SECRET: string;
+  private CRYPT_SALT: number;
 
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.ACCESS_TTL = this.configService.get('ACCESS_TTL', '15m');
+    this.REFRESH_TTL = this.configService.get('REFRESH_TTL', '7d');
+    this.JWT_SECRET = this.configService.get('JWT_SECRET', 'jwt_secret');
+    this.JWT_REFRESH_SECRET = this.configService.get(
+      'JWT_REFRESH_SECRET',
+      'jwt_refresh_secret',
+    );
+    this.CRYPT_SALT = Number(this.configService.get<number>('CRYPT_SALT', 10));
+  }
 
   async signup(dto: SignupDto) {
     const exists = await this.prisma.user.findUnique({
@@ -84,7 +97,7 @@ export class AuthService {
       const payload: TokenPayloadType = await this.jwt.verifyAsync(
         refreshToken,
         {
-          secret: process.env.JWT_REFRESH_SECRET,
+          secret: this.JWT_REFRESH_SECRET,
         },
       );
 
@@ -97,8 +110,11 @@ export class AuthService {
       }
 
       return this.issueTokens(user);
-    } catch {
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN); // 403
+    } catch (err) {
+      if (err instanceof UnauthorizedException) {
+        throw err;
+      }
+      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
     }
   }
 
@@ -106,7 +122,7 @@ export class AuthService {
     const accessToken = await this.jwt.signAsync(
       { userId: id, login, role },
       {
-        secret: process.env.JWT_SECRET,
+        secret: this.JWT_SECRET,
         expiresIn: this.ACCESS_TTL,
       },
     );
@@ -114,7 +130,7 @@ export class AuthService {
     const refreshToken = await this.jwt.signAsync(
       { userId: id, login, role },
       {
-        secret: process.env.JWT_REFRESH_SECRET,
+        secret: this.JWT_REFRESH_SECRET,
         expiresIn: this.REFRESH_TTL,
       },
     );

@@ -5,7 +5,6 @@
   ],
   "rootDir": "./test",
   "testEnvironment": "node",
-  "verbose": true,
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
