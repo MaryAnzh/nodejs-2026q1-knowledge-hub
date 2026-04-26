@@ -67,13 +67,14 @@ export class AppLogger extends ConsoleLogger {
     }
   }
 
-  private format(level: LogLevelType, message: unknown, context = ''): LoggerFormatType {
+  private format(
+    level: LogLevelType,
+    message: unknown,
+    context = '',
+  ): LoggerFormatType {
     const timestamp = new Date().toISOString();
 
-    const msg =
-      typeof message === 'string'
-        ? message
-        : JSON.stringify(message);
+    const msg = typeof message === 'string' ? message : JSON.stringify(message);
 
     const json = JSON.stringify({
       timestamp,
@@ -94,13 +95,13 @@ export class AppLogger extends ConsoleLogger {
 
       await this.checkFileSize();
 
-      await fs.appendFile(this.logFilePath, message + '\n', { encoding: 'utf8' });
+      await fs.appendFile(this.logFilePath, message + '\n', {
+        encoding: 'utf8',
+      });
     } catch (err) {
       super.error(C.FAILED_TO_WRIT_LOG_FILE, err as Error);
     }
   }
-
-  // ---------- output ----------
 
   private show(level: LogLevelType, message: unknown, context?: string) {
     const { line, json } = this.format(level, message, context);
@@ -130,5 +131,8 @@ export class AppLogger extends ConsoleLogger {
 
   verbose(message: unknown, context?: string) {
     this.show(C.VERBOSE, message, context);
+  }
+  fatal(message: unknown, context?: string) {
+    this.show(C.FATAL, message, context);
   }
 }

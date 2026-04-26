@@ -52,11 +52,10 @@ describe('ArticlesService (unit)', () => {
     prisma.article.findUnique.mockResolvedValue(null);
 
     await expect(service.findOne(TEST_UTIL.TEST_ID)).rejects.toThrow(
-      NotFoundCustomError
+      NotFoundCustomError,
     );
   });
 
-  // CREATE
   it('should create article without tags', async () => {
     const testArticle = TEST_UTIL.TEST_ARTICLES[0];
     prisma.article.create.mockResolvedValue(testArticle);

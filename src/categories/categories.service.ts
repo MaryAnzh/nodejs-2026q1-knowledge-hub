@@ -9,7 +9,7 @@ import * as C from '../constants';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   findAll() {
     return this.prisma.category.findMany();

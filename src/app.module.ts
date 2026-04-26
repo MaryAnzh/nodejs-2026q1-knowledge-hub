@@ -13,8 +13,8 @@ import { AccessGuard } from './auth/guards/access.guard';
 
 import { AppController } from './app.controller';
 import { AppService } from './app-service';
-import { AppLogger } from './logger/logger.service';
 import { AppLoggerModule } from './logger/logger.module';
+import * as C from './constants';
 
 @Module({
   imports: [
@@ -25,7 +25,6 @@ import { AppLoggerModule } from './logger/logger.module';
     UserModule,
     HealthModule,
     PrismaModule,
-    AuthModule,
     AppLoggerModule,
   ],
   controllers: [AppController],
@@ -39,6 +38,6 @@ import { AppLoggerModule } from './logger/logger.module';
 })
 export class AppModule {
   constructor() {
-    console.log('App exports');
+    console.log(C.APP_EXPORTS);
   }
 }

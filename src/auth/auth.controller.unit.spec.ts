@@ -61,7 +61,9 @@ describe('AuthController (unit)', () => {
 
   // LOGOUT
   it('logout should throw if no token', async () => {
-    await expect(controller.logout('')).rejects.toThrow(UnauthorizedCustomError);
+    await expect(controller.logout('')).rejects.toThrow(
+      UnauthorizedCustomError,
+    );
   });
 
   it('logout should add token to invalidatedRefreshTokens', async () => {

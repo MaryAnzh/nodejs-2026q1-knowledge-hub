@@ -9,7 +9,7 @@ import { UnauthorizedCustomError } from '../../errors';
 vi.mock('@nestjs/passport', () => ({
   AuthGuard: () =>
     // empty extends
-    class { },
+    class {},
 }));
 
 describe('AccessGuard (unit)', () => {
@@ -51,7 +51,6 @@ describe('AccessGuard (unit)', () => {
     (route) => {
       const ctx = mockContext(route);
 
-      // super.canActivate doesn't exist throw err
       expect(() => guard.canActivate(ctx)).toThrow();
     },
   );

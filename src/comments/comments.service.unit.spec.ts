@@ -3,9 +3,7 @@ import { CommentsService } from './comments.service';
 import { PrismaService } from '../prismaService/prisma.service';
 import * as TEST_UTIL from '../test-utils';
 import * as C from '../constants';
-import {
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { UnprocessableEntityException } from '@nestjs/common';
 import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 describe('CommentsService (unit)', () => {

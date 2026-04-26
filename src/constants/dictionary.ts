@@ -28,7 +28,9 @@ export const {
   ARTICLE,
   CATEGORY,
   COMMENT,
+  APP_EXPORTS,
 } = {
+  APP_EXPORTS: 'App exports',
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
   USER_EXISTS: 'User already exists',
@@ -57,5 +59,5 @@ export const {
   INVALID_OR_MISSING_ACCESS_TOKEN: 'Invalid or missing access token',
   TAGS_CANNOT_BE_EMPTY: 'Tags array cannot be empty',
   DUPLICATE_TAG: 'Duplicate tags are not allowed',
-  CATEGORY: 'category'
+  CATEGORY: 'category',
 } as const;

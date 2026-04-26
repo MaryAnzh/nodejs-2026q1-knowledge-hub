@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { PrismaService } from '../prismaService/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
-import { Role, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { hash, compare } from 'bcryptjs';
 import { invalidatedRefreshTokens } from './token-store';
 import { ConfigService } from '@nestjs/config';
@@ -91,9 +91,7 @@ describe('AuthService (unit)', () => {
   describe('login', () => {
     it('should throw UnauthorizedException if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.login(dto)).rejects.toThrow(
-        UnauthorizedCustomError,
-      );
+      await expect(service.login(dto)).rejects.toThrow(UnauthorizedCustomError);
     });
 
     it('should throw UnauthorizedException if password invalid', async () => {
@@ -139,14 +137,14 @@ describe('AuthService (unit)', () => {
   describe('refresh', () => {
     it('should throw UnauthorizedException if no token provided', async () => {
       await expect(service.refresh('')).rejects.toThrow(
-        UnauthorizedCustomError
+        UnauthorizedCustomError,
       );
     });
 
     it('should throw ForbiddenException if token is invalidated', async () => {
       invalidatedRefreshTokens.add(wrongToken);
       await expect(service.refresh(wrongToken)).rejects.toThrow(
-        ForbiddenCustomError
+        ForbiddenCustomError,
       );
     });
 
@@ -201,7 +199,6 @@ describe('AuthService (unit)', () => {
     });
   });
 
-  // issueTokens (private) — тестируем через вызов
   describe('issueTokens', () => {
     it('should sign tokens with correct payload and secrets', async () => {
       const user = { id, login, role } as User;
@@ -233,7 +230,6 @@ describe('AuthService (unit)', () => {
     });
   });
 
-  // constructor, check ConfigService call
   describe('constructor', () => {
     it('should read all config values', () => {
       expect(configService.get).toHaveBeenCalledWith(
