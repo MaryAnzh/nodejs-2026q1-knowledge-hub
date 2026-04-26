@@ -39,6 +39,10 @@ npm run test:jest
 4.1 View logs in real time
 bash
 docker logs -f knowledge-hub-app
+or
+docker compose down
+doker compose up --build
+and your can see logs in real time
 
 4.2 Generate more logs
 In another terminal:
@@ -46,10 +50,10 @@ In another terminal:
 bash
 npm run test
 
-📦 How to inspect log files inside the container
+Then to inspect log files inside the container
 bash
 docker exec -it knowledge-hub-app sh
-ls -la /app/logs
+$: ls -la /app/logs
 You will see something like:
 
 ```
@@ -61,11 +65,11 @@ To view a file:
 ```
 
 bash
-cat /app/logs/app.log
+$: cat /app/logs/app.log
 Exit the container:
 
 bash
-exit
+$: exit
 
 🔄 Log rotation example
 If you set LOG_MAX_FILE_SIZE=100 and run tests several times, you will see rotated files:
@@ -90,3 +94,33 @@ logging continues into the new file
 NODE_ENV=development
 LOG_LEVEL=log
 LOG_MAX_FILE_SIZE=1024 // 100 for rotation testing
+
+✅ Implemented Features (Task 8B)
+
+Basic Scope
+✔ Configurable NestJS logger via LOG_LEVEL
+
+✔ Incoming request logging (method, URL, params, body)
+
+✔ Outgoing response logging (status code, duration)
+
+✔ Global exception filter with structured JSON output
+
+✔ Custom error classes:
+- ValidationCustomError
+- NotFoundCustomError
+- UnauthorizedCustomError
+- ForbiddenCustomError
+
+✔ Custom errors used in services and controllers
+
+Advanced Scope
+✔ Log file rotation via LOG_MAX_FILE_SIZE
+
+✔ Sensitive data masking (password, token → ***)
+
+✔ uncaughtException listener with fatal logging + graceful shutdown
+
+✔ unhandledRejection listener with error logging + graceful shutdown
+
+✔ Graceful shutdown on SIGTERM and SIGINT (Docker stop)
