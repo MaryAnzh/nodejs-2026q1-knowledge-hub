@@ -84,3 +84,9 @@ app.log is renamed to app-<timestamp>.log
 a new app.log is created
 
 logging continues into the new file
+
+⚙️ Environment variables
+
+NODE_ENV=development
+LOG_LEVEL=log
+LOG_MAX_FILE_SIZE=1024 // 100 for rotation testing

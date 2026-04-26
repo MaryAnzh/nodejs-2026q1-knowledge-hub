@@ -7,6 +7,7 @@ import { AppLogger } from './logger/logger.service';
 import { RequestLoggerInterceptor } from './logger/request-logger.interceptor';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import * as C from './constants';
+import { ValidationCustomError } from './errors';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -21,6 +22,14 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.map((err) => ({
+          field: err.property,
+          errors: Object.values(err.constraints),
+        }));
+
+        return new ValidationCustomError(messages);
+      },
     }),
   );
 

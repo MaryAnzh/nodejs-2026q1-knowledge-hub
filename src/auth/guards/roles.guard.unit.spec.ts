@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi, Mocked } from 'vitest';
 import { RolesGuard } from './roles.guard';
-import { ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Role } from '@prisma/client';
+import { ForbiddenCustomError } from '../../errors';
 
 export const createReflectorMock = (
   overrides?: Partial<Mocked<Reflector>>,
@@ -47,7 +47,7 @@ describe('RolesGuard (unit)', () => {
 
     const ctx = mockContext({});
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenCustomError);
   });
 
   it('should throw ForbiddenException when user role is not allowed', () => {
@@ -55,7 +55,7 @@ describe('RolesGuard (unit)', () => {
 
     const ctx = mockContext({ role: Role.viewer });
 
-    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenException);
+    expect(() => guard.canActivate(ctx)).toThrow(ForbiddenCustomError);
   });
 
   it('should allow access when user has required role', () => {
