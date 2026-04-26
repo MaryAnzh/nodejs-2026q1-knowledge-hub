@@ -25,6 +25,9 @@ export const {
   INVALID_OR_MISSING_ACCESS_TOKEN,
   TAGS_CANNOT_BE_EMPTY,
   DUPLICATE_TAG,
+  ARTICLE,
+  CATEGORY,
+  COMMENT,
 } = {
   HELLO: 'Hello, App running',
   USER_NOT_FOUND: 'User not found',
@@ -32,7 +35,9 @@ export const {
   ARTICLE_NOT_FOUND: 'Article not found',
   USER: 'user',
   ARTICLES: 'articles',
+  ARTICLE: 'article',
   CATEGORIES: 'categories',
+  COMMENT: 'comment',
   COMMENTS: 'comments',
   AUTH: 'Auth',
   INVALID_CREDENTIALS: 'Invalid credentials',
@@ -52,4 +57,5 @@ export const {
   INVALID_OR_MISSING_ACCESS_TOKEN: 'Invalid or missing access token',
   TAGS_CANNOT_BE_EMPTY: 'Tags array cannot be empty',
   DUPLICATE_TAG: 'Duplicate tags are not allowed',
+  CATEGORY: 'category'
 } as const;

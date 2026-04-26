@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../prismaService/prisma.service';
 
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { NotFoundCustomError } from '../errors';
+import * as C from '../constants';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   findAll() {
     return this.prisma.category.findMany();
@@ -18,7 +20,7 @@ export class CategoriesService {
       where: { id },
     });
 
-    if (!category) throw new NotFoundException();
+    if (!category) throw new NotFoundCustomError(C.CATEGORY);
     return category;
   }
 

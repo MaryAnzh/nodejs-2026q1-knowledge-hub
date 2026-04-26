@@ -13,6 +13,8 @@ import { AccessGuard } from './auth/guards/access.guard';
 
 import { AppController } from './app.controller';
 import { AppService } from './app-service';
+import { AppLogger } from './logger/logger.service';
+import { AppLoggerModule } from './logger/logger.module';
 
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { AppService } from './app-service';
     HealthModule,
     PrismaModule,
     AuthModule,
+    AppLoggerModule,
   ],
   controllers: [AppController],
   providers: [

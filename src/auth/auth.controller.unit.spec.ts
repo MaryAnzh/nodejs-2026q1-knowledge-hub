@@ -1,5 +1,4 @@
 import { vi, describe, it, beforeEach, expect } from 'vitest';
-import { UnauthorizedException } from '@nestjs/common';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -7,6 +6,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { invalidatedRefreshTokens } from './token-store';
+import { UnauthorizedCustomError } from '../errors';
 
 describe('AuthController (unit)', () => {
   let controller: AuthController;
@@ -61,7 +61,7 @@ describe('AuthController (unit)', () => {
 
   // LOGOUT
   it('logout should throw if no token', async () => {
-    await expect(controller.logout('')).rejects.toThrow(UnauthorizedException);
+    await expect(controller.logout('')).rejects.toThrow(UnauthorizedCustomError);
   });
 
   it('logout should add token to invalidatedRefreshTokens', async () => {

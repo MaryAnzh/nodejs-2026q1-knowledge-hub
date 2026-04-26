@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ArticlesService } from './articles.service';
 import { PrismaService } from '../prismaService/prisma.service';
-import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import * as TEST_UTIL from '../test-utils';
 import * as C from '../constants';
 import { Article } from '@prisma/client';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 describe('ArticlesService (unit)', () => {
   let prisma: ReturnType<typeof TEST_UTIL.createPrismaMock>;
@@ -52,7 +52,7 @@ describe('ArticlesService (unit)', () => {
     prisma.article.findUnique.mockResolvedValue(null);
 
     await expect(service.findOne(TEST_UTIL.TEST_ID)).rejects.toThrow(
-      NotFoundException,
+      NotFoundCustomError
     );
   });
 
@@ -93,7 +93,7 @@ describe('ArticlesService (unit)', () => {
 
     await expect(
       service.update(TEST_UTIL.TEST_ID, {}, { userId: 'x', role: C.EDITOR }),
-    ).rejects.toThrow(NotFoundException);
+    ).rejects.toThrow(NotFoundCustomError);
   });
 
   it('should throw ForbiddenException if editor updates not own article', async () => {
@@ -102,7 +102,7 @@ describe('ArticlesService (unit)', () => {
 
     await expect(
       service.update(testArticle.id, {}, { userId: 'user1', role: C.EDITOR }),
-    ).rejects.toThrow(ForbiddenException);
+    ).rejects.toThrow(ForbiddenCustomError);
   });
 
   it('should delete article as admin', async () => {
@@ -132,7 +132,7 @@ describe('ArticlesService (unit)', () => {
     const user = { userId: TEST_UTIL.TEST_USER_ID_2, role: C.EDITOR };
 
     await expect(service.remove(testArticle.id, user)).rejects.toThrow(
-      ForbiddenException,
+      ForbiddenCustomError,
     );
   });
 
@@ -141,7 +141,7 @@ describe('ArticlesService (unit)', () => {
 
     await expect(
       service.remove(TEST_UTIL.TEST_ID, { userId: 'x', role: C.ADMIN }),
-    ).rejects.toThrow(NotFoundException);
+    ).rejects.toThrow(NotFoundCustomError);
   });
 
   it.each([
@@ -165,7 +165,7 @@ describe('ArticlesService (unit)', () => {
           { status: newStatus },
           { userId: 'user1', role: C.EDITOR },
         ),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(ForbiddenCustomError);
     },
   );
 

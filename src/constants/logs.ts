@@ -13,7 +13,7 @@ export const {
     OUTGOING_RESPONSE,
     PASSWORD,
     REFRESH_TOKEN,
-    TOKEN,
+    TOKEN
 } = {
     APP: 'app',
     LOG: 'log',

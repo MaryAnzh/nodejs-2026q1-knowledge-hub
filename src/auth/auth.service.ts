@@ -1,8 +1,6 @@
 import {
   Injectable,
   ConflictException,
-  UnauthorizedException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
@@ -16,6 +14,7 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import type { TimeTokenType, TokenPayloadType } from '../types';
 import { invalidatedRefreshTokens } from './token-store';
+import { ForbiddenCustomError, UnauthorizedCustomError } from '../errors';
 
 @Injectable()
 export class AuthService {
@@ -68,13 +67,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException(C.WRONG_LOGIN);
+      throw new UnauthorizedCustomError(C.WRONG_LOGIN);
     }
 
     const valid = await bcrypt.compare(dto.password, user.password);
 
     if (!valid) {
-      throw new UnauthorizedException(C.WRONG_PASSWORD);
+      throw new UnauthorizedCustomError(C.WRONG_PASSWORD);
     }
 
     return await this.issueTokens(user);
@@ -82,15 +81,15 @@ export class AuthService {
 
   async refresh(refreshToken: string) {
     if (invalidatedRefreshTokens.has(refreshToken)) {
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
+      throw new ForbiddenCustomError(C.INVALID_REFRESH_TOKEN);
     }
 
     if (!refreshToken) {
-      throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
+      throw new UnauthorizedCustomError(C.INVALID_REFRESH_TOKEN); // 401
     }
 
     if (refreshToken.split('.').length !== 3) {
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN); // 403
+      throw new ForbiddenCustomError(C.INVALID_REFRESH_TOKEN); // 403
     }
 
     try {
@@ -106,15 +105,15 @@ export class AuthService {
       });
 
       if (!user) {
-        throw new UnauthorizedException(C.INVALID_REFRESH_TOKEN); // 401
+        throw new UnauthorizedCustomError(C.INVALID_REFRESH_TOKEN); // 401
       }
 
       return this.issueTokens(user);
     } catch (err) {
-      if (err instanceof UnauthorizedException) {
+      if (err instanceof UnauthorizedCustomError) {
         throw err;
       }
-      throw new ForbiddenException(C.INVALID_REFRESH_TOKEN);
+      throw new ForbiddenCustomError(C.INVALID_REFRESH_TOKEN);
     }
   }
 

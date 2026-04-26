@@ -7,6 +7,7 @@ import {
 import { Observable, tap } from 'rxjs';
 import { AppLogger } from './logger.service';
 import * as C from '../constants';
+import { Response } from 'express';
 
 @Injectable()
 export class RequestLoggerInterceptor implements NestInterceptor {
@@ -17,23 +18,33 @@ export class RequestLoggerInterceptor implements NestInterceptor {
         const request = http.getRequest<Request>();
         const { method, url, body } = request;
 
+        const isHealthCheck = url === C.ROUTES.HEALTH;
+
         const start = Date.now();
 
         const safeBody = this.mask(body);
 
-        this.logger.log(
-            {
-                method,
-                url,
-                body: safeBody,
-                message: C.INCOMING_REQUEST,
-            },
-            'HTTP',
-        );
+        if (!isHealthCheck) {
+            this.logger.log(
+                {
+                    method,
+                    url,
+                    body: safeBody,
+                    message: C.INCOMING_REQUEST,
+                },
+                'HTTP',
+            );
+        }
 
         return next.handle().pipe(
             tap((responseBody) => {
                 const duration = Date.now() - start;
+                const response = http.getResponse<Response>();
+                const status = response.statusCode;
+
+                if (isHealthCheck && status < 400) {
+                    return;
+                }
 
                 this.logger.log(
                     {

@@ -2,8 +2,7 @@ import {
   Controller,
   Post,
   Body,
-  HttpCode,
-  UnauthorizedException,
+  HttpCode
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
@@ -15,11 +14,12 @@ import { LoginDto } from './dto/login.dto';
 import * as C from '../constants';
 import { invalidatedRefreshTokens } from './token-store';
 import { Throttle } from '@nestjs/throttler';
+import { UnauthorizedCustomError } from '../errors';
 
 @ApiTags(C.AUTH)
 @Controller(C.ROUTES.AUTH)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('signup')
   @ApiOperation({ summary: 'Create new user' })
@@ -55,7 +55,7 @@ export class AuthController {
   @HttpCode(SC.OK) // 200
   async logout(@Body('refreshToken') refreshToken: string) {
     if (!refreshToken) {
-      throw new UnauthorizedException('No refresh token provided');
+      throw new UnauthorizedCustomError('No refresh token provided');
     }
 
     invalidatedRefreshTokens.add(refreshToken);

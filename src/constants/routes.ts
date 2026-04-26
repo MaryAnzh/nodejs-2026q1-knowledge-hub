@@ -8,10 +8,10 @@ export const ROUTES = {
 } as const;
 
 export const PUBLIC_ROUTES = [
+  '/health',
   '/auth/signup',
   '/auth/login',
   '/auth/refresh',
   '/doc',
   '/',
-  '/health',
 ];

@@ -1,13 +1,10 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Article, Tag } from '@prisma/client';
+import { PrismaService } from '../prismaService/prisma.service';
 
 import * as C from '../constants';
 import * as T from '../types';
-import { PrismaService } from '../prismaService/prisma.service';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
@@ -33,13 +30,13 @@ export class ArticlesService {
 
     const allowed = C.ARTICLE_STATUS_FLOW[oldStatus];
     if (!allowed.includes(newStatus)) {
-      throw new ForbiddenException(
+      throw new ForbiddenCustomError(
         `Invalid status transition: ${oldStatus} → ${newStatus}`,
       );
     }
   }
 
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async findAll({
     categoryId,
@@ -104,7 +101,7 @@ export class ArticlesService {
       include: { tags: true },
     });
 
-    if (!article) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
+    if (!article) throw new NotFoundCustomError(C.ARTICLES);
 
     return this.safeArticle(article);
   }
@@ -114,13 +111,13 @@ export class ArticlesService {
 
     // if add this test from test folder fail
     // if (dto.tags && dto.tags.length === 0) {
-    //   throw new ForbiddenException(C.TAGS_CANNOT_BE_EMPTY);
+    //   throw new ForbiddenCustomError(C.TAGS_CANNOT_BE_EMPTY);
     // }
 
     // if (dto.tags) {
     //   const unique = new Set(dto.tags);
     //   if (unique.size !== dto.tags.length) {
-    //     throw new ForbiddenException(C.DUPLICATE_TAG);
+    //     throw new ForbiddenCustomError(C.DUPLICATE_TAG);
     //   }
     // }
 
@@ -135,11 +132,11 @@ export class ArticlesService {
         updatedAt: now,
         tags: dto.tags
           ? {
-              connectOrCreate: dto.tags.map((name) => ({
-                where: { name },
-                create: { name },
-              })),
-            }
+            connectOrCreate: dto.tags.map((name) => ({
+              where: { name },
+              create: { name },
+            })),
+          }
           : undefined,
       },
       include: { tags: true },
@@ -153,10 +150,10 @@ export class ArticlesService {
     user: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ArticleType> {
     const exists = await this.prisma.article.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
+    if (!exists) throw new NotFoundCustomError(C.ARTICLES);
 
     if (user.role === C.EDITOR && exists.authorId !== user.userId) {
-      throw new ForbiddenException(C.EDIT_EXCEPTION);
+      throw new ForbiddenCustomError();
     }
     if (dto.status) {
       this.validateStatusTransition(exists.status, dto.status);
@@ -164,13 +161,13 @@ export class ArticlesService {
 
     // if add this test from test folder fail
     // if (dto.tags && dto.tags.length === 0) {
-    //   throw new ForbiddenException(C.TAGS_CANNOT_BE_EMPTY);
+    //   throw new ForbiddenCustomError(C.TAGS_CANNOT_BE_EMPTY);
     // }
 
     if (dto.tags) {
       const unique = new Set(dto.tags);
       if (unique.size !== dto.tags.length) {
-        throw new ForbiddenException(C.DUPLICATE_TAG);
+        throw new ForbiddenCustomError(C.DUPLICATE_TAG);
       }
     }
 
@@ -181,12 +178,12 @@ export class ArticlesService {
         updatedAt: new Date(),
         tags: dto.tags
           ? {
-              set: [],
-              connectOrCreate: dto.tags.map((name) => ({
-                where: { name },
-                create: { name },
-              })),
-            }
+            set: [],
+            connectOrCreate: dto.tags.map((name) => ({
+              where: { name },
+              create: { name },
+            })),
+          }
           : undefined,
       },
       include: { tags: true },
@@ -197,10 +194,10 @@ export class ArticlesService {
 
   async remove(id: string, user: Omit<T.TokenPayloadType, 'login'>) {
     const exists = await this.prisma.article.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(C.ARTICLE_NOT_FOUND);
+    if (!exists) throw new NotFoundCustomError(C.ARTICLES);
 
     if (user.role !== C.ADMIN && exists.authorId !== user.userId) {
-      throw new ForbiddenException(C.ARTICLE_DELETE_EXCEPTION);
+      throw new ForbiddenCustomError();
     }
 
     await this.prisma.article.delete({ where: { id } });

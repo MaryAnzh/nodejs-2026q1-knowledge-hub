@@ -5,12 +5,15 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { AppLogger } from './logger/logger.service';
 import { RequestLoggerInterceptor } from './logger/request-logger.interceptor';
+import { HttpExceptionFilter } from './filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
   });
 
+  const logger = new AppLogger();
+  app.useLogger(logger);
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -19,10 +22,8 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
-  const logger = new AppLogger();
-  app.useLogger(logger);
   app.useGlobalInterceptors(new RequestLoggerInterceptor(logger));
+  app.useGlobalFilters(new HttpExceptionFilter(app.get(AppLogger)));
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 4000);

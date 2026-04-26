@@ -1,7 +1,5 @@
 import {
-  ForbiddenException,
   Injectable,
-  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { PrismaService } from '../prismaService/prisma.service';
@@ -10,10 +8,11 @@ import { UpdateCommentDto } from './dto/update-comment.dto';
 import { Comment } from '@prisma/client';
 import * as C from '../constants';
 import { TokenPayloadType } from '../types';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   private safe(comment: Comment) {
     return {
@@ -34,7 +33,7 @@ export class CommentsService {
       where: { id },
     });
 
-    if (!comment) throw new NotFoundException('Comment not found');
+    if (!comment) throw new NotFoundCustomError(C.COMMENT);
     return this.safe(comment);
   }
 
@@ -60,10 +59,10 @@ export class CommentsService {
 
   async update(id: string, dto: UpdateCommentDto, user: TokenPayloadType) {
     const exists = await this.prisma.comment.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
+    if (!exists) throw new NotFoundCustomError(C.COMMENT);
 
     if (user.role === C.EDITOR && exists.authorId !== user.userId) {
-      throw new ForbiddenException(C.COMMENT_EXCEPTION);
+      throw new ForbiddenCustomError();
     }
     await this.findOne(id);
 
@@ -77,10 +76,10 @@ export class CommentsService {
 
   async remove(id: string, user: Omit<TokenPayloadType, 'login'>) {
     const exists = await this.prisma.comment.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(C.COMMENT_NOT_FOUND);
+    if (!exists) throw new NotFoundCustomError(C.COMMENT);
 
     if (user.role !== C.ADMIN && exists.authorId !== user.userId) {
-      throw new ForbiddenException(C.COMMENT_DELETE_EXCEPTION);
+      throw new ForbiddenCustomError(C.COMMENT_DELETE_EXCEPTION);
     }
 
     await this.prisma.comment.delete({ where: { id } });

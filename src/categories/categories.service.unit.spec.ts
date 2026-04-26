@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { CategoriesService } from './categories.service';
 import { PrismaService } from '../prismaService/prisma.service';
 import * as TEST_UTIL from '../test-utils';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundCustomError } from '../errors';
 
 describe('CategoriesService (unit)', () => {
   let prisma: ReturnType<typeof TEST_UTIL.createPrismaMock>;
@@ -35,7 +35,7 @@ describe('CategoriesService (unit)', () => {
     prisma.category.findUnique.mockResolvedValue(null);
 
     await expect(service.findOne(TEST_UTIL.TEST_ID)).rejects.toThrow(
-      NotFoundException,
+      NotFoundCustomError
     );
   });
 
@@ -75,7 +75,7 @@ describe('CategoriesService (unit)', () => {
     prisma.category.findUnique.mockResolvedValue(null);
 
     await expect(service.update(TEST_UTIL.TEST_ID, {})).rejects.toThrow(
-      NotFoundException,
+      NotFoundCustomError,
     );
   });
 
@@ -104,7 +104,7 @@ describe('CategoriesService (unit)', () => {
     prisma.category.findUnique.mockResolvedValue(null);
 
     await expect(service.remove(TEST_UTIL.TEST_ID)).rejects.toThrow(
-      NotFoundException,
+      NotFoundCustomError,
     );
   });
 });

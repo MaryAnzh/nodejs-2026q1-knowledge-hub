@@ -2,7 +2,6 @@ import { vi, describe, it, beforeEach, expect, Mocked } from 'vitest';
 import { UserService } from './user.service';
 import { PrismaService } from '../prismaService/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
@@ -13,6 +12,7 @@ import {
   CRYPT_SALT,
 } from '../test-utils';
 import { VIEWER, ADMIN } from '../constants';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 vi.mock('bcryptjs', () => ({
   genSalt: vi.fn(),
@@ -79,7 +79,7 @@ describe('UserService (unit)', () => {
   describe('findOne', () => {
     it('should throw if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
-      await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(id)).rejects.toThrow(NotFoundCustomError);
     });
 
     it('should return mapped user', async () => {
@@ -142,7 +142,7 @@ describe('UserService (unit)', () => {
     it('should throw Forbidden if no rights', async () => {
       await expect(
         service.update(id, dto, { role: VIEWER, userId: id2 }),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(ForbiddenCustomError);
     });
 
     it('should throw NotFound if user not found', async () => {
@@ -150,7 +150,7 @@ describe('UserService (unit)', () => {
 
       await expect(
         service.update(id, dto, { role: ADMIN, userId: id2 }),
-      ).rejects.toThrow(NotFoundException);
+      ).rejects.toThrow(NotFoundCustomError);
     });
 
     it('should throw Forbidden if password mismatch', async () => {
@@ -159,7 +159,7 @@ describe('UserService (unit)', () => {
 
       await expect(
         service.update(id, dto, { role: ADMIN, userId: id2 }),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(ForbiddenCustomError);
     });
 
     it('should update password', async () => {
@@ -201,7 +201,7 @@ describe('UserService (unit)', () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.updateRole(id, { role: ADMIN })).rejects.toThrow(
-        NotFoundException,
+        NotFoundCustomError,
       );
     });
 
@@ -227,7 +227,7 @@ describe('UserService (unit)', () => {
     it('should throw if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
-      await expect(service.remove(id)).rejects.toThrow(NotFoundException);
+      await expect(service.remove(id)).rejects.toThrow(NotFoundCustomError);
     });
 
     it('should run transaction and return null', async () => {

@@ -1,18 +1,19 @@
 import { describe, it, expect, vi, Mocked, beforeEach } from 'vitest';
 import { AccessGuard } from './access.guard';
-import * as EXC from '@nestjs/common';
 import * as C from '../../constants';
 import { JwtService } from '@nestjs/jwt';
 import * as TEST_UTIL from '../../test-utils';
+import { ExecutionContext } from '@nestjs/common';
+import { UnauthorizedCustomError } from '../../errors';
 
 vi.mock('@nestjs/passport', () => ({
   AuthGuard: () =>
     // empty extends
-    class {},
+    class { },
 }));
 
 describe('AccessGuard (unit)', () => {
-  const mockContext = (path: string): EXC.ExecutionContext =>
+  const mockContext = (path: string): ExecutionContext =>
     ({
       switchToHttp: () => ({
         getRequest: () => ({
@@ -65,13 +66,13 @@ describe('AccessGuard (unit)', () => {
 
   it('should throw UnauthorizedException when user is null', () => {
     expect(() => guard.handleRequest(null, null)).toThrow(
-      EXC.UnauthorizedException,
+      UnauthorizedCustomError,
     );
   });
 
   it('should throw UnauthorizedException when err is present', () => {
     expect(() => guard.handleRequest(new Error(), { id: 1 })).toThrow(
-      EXC.UnauthorizedException,
+      UnauthorizedCustomError,
     );
   });
 });

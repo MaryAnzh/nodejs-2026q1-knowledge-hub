@@ -88,8 +88,6 @@ export class AppLogger extends ConsoleLogger {
     };
   }
 
-  // ---------- write ----------
-
   private async writeToFile(message: string) {
     try {
       await this.ensureLogDirAndFile();
@@ -118,8 +116,8 @@ export class AppLogger extends ConsoleLogger {
     this.show(C.LOG, message, context);
   }
 
-  error(message: unknown, trace?: string, context?: string) {
-    this.show(C.ERROR, { message, trace }, context);
+  error(message: unknown, context?: string) {
+    this.show(C.ERROR, message, context);
   }
 
   warn(message: unknown, context?: string) {

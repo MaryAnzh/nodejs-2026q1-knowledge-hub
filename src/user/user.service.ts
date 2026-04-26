@@ -1,7 +1,5 @@
 import {
-  ForbiddenException,
   Injectable,
-  NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
@@ -14,6 +12,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { ConfigService } from '@nestjs/config';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 @Injectable()
 export class UserService {
@@ -43,7 +42,7 @@ export class UserService {
 
   private ensureUser(user: Omit<User, 'password'> | null) {
     if (!user) {
-      throw new NotFoundException(C.USER_NOT_FOUND);
+      throw new NotFoundCustomError(C.USER);
     }
   }
 
@@ -108,7 +107,7 @@ export class UserService {
     { role, userId }: Omit<T.TokenPayloadType, 'login'>,
   ): Promise<T.ResponseUserType> {
     if (role !== C.ADMIN && userId !== id) {
-      throw new ForbiddenException(C.USER_UPDATE_FORBIDDEN);
+      throw new ForbiddenCustomError(C.USER_UPDATE_FORBIDDEN);
     }
 
     const user = await this.prisma.user.findUnique({
@@ -116,12 +115,12 @@ export class UserService {
       select: { password: true },
     });
     if (!user) {
-      throw new NotFoundException(C.USER_NOT_FOUND);
+      throw new NotFoundCustomError(C.USER);
     }
 
     const isMatch = await bcrypt.compare(dto.oldPassword, user.password);
     if (!isMatch) {
-      throw new ForbiddenException(C.WRONG_PASSWORD);
+      throw new ForbiddenCustomError(C.WRONG_PASSWORD);
     }
     const hashed = await this.getHash(dto.newPassword);
 
@@ -144,7 +143,7 @@ export class UserService {
 
   async updateRole(id: string, dto: UpdateUserRoleDto) {
     const exists = await this.prisma.user.findUnique({ where: { id } });
-    if (!exists) throw new NotFoundException(C.USER_NOT_FOUND);
+    if (!exists) throw new NotFoundCustomError(C.USER);
 
     const updated = await this.prisma.user.update({
       where: { id },
@@ -164,7 +163,7 @@ export class UserService {
   async remove(id: string) {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException(C.USER_NOT_FOUND);
+      throw new NotFoundCustomError(C.USER);
     }
 
     await this.prisma.$transaction([

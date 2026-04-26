@@ -5,21 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { Role, User } from '@prisma/client';
 import { hash, compare } from 'bcryptjs';
-import * as Exc from '@nestjs/common';
 import { invalidatedRefreshTokens } from './token-store';
-
-import {
-  createPrismaMock,
-  createJwtMock,
-  createConfigMock,
-  ACCESS_TTL,
-  TEST_KEY_VALUE,
-  REFRESH_TTL,
-  JWT_SECRET,
-  JWT_REFRESH_SECRET,
-  CRYPT_SALT,
-} from '../test-utils';
 import { ConfigService } from '@nestjs/config';
+import { ForbiddenCustomError, UnauthorizedCustomError } from '../errors';
+import { ConflictException } from '@nestjs/common';
+
+import * as TEST_UTIL from '../test-utils';
+import { VIEWER } from '../constants';
 
 vi.mock('bcryptjs', async () => ({
   hash: vi.fn(),
@@ -28,19 +20,19 @@ vi.mock('bcryptjs', async () => ({
 
 describe('AuthService (unit)', () => {
   let service: AuthService;
-  let prisma: ReturnType<typeof createPrismaMock>;
+  let prisma: ReturnType<typeof TEST_UTIL.createPrismaMock>;
   let jwt: Mocked<JwtService>;
   let configService: Mocked<ConfigService>;
 
   const hashMock = hash as unknown as ReturnType<typeof vi.fn>;
   const compareMock = compare as unknown as ReturnType<typeof vi.fn>;
 
-  const id = '1';
-  const login = 'Jon';
-  const password = '123456';
-  const hashedPass = 'hashed-pass';
-  const role = Role.viewer;
-  const token = 'a.b.c';
+  const id = TEST_UTIL.TEST_ID;
+  const login = TEST_UTIL.TEST_LOGIN;
+  const password = TEST_UTIL.TEST_PASS;
+  const hashedPass = TEST_UTIL.TEST_HASHED;
+  const role = VIEWER;
+  const token = TEST_UTIL.TEST_TOKEN;
   const accessToken = 'access-token';
   const refreshToken = 'refresh-token';
   const wrongToken = 'wrong-token';
@@ -50,9 +42,9 @@ describe('AuthService (unit)', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    prisma = createPrismaMock();
-    jwt = createJwtMock();
-    configService = createConfigMock();
+    prisma = TEST_UTIL.createPrismaMock();
+    jwt = TEST_UTIL.createJwtMock();
+    configService = TEST_UTIL.createConfigMock();
 
     service = new AuthService(
       prisma as unknown as PrismaService,
@@ -67,7 +59,7 @@ describe('AuthService (unit)', () => {
   describe('signup', () => {
     it('should throw ConflictException if login already exists', async () => {
       prisma.user.findUnique.mockResolvedValue({ id });
-      await expect(service.signup(dto)).rejects.toThrow(Exc.ConflictException);
+      await expect(service.signup(dto)).rejects.toThrow(ConflictException);
     });
 
     it('should hash password and create user', async () => {
@@ -100,7 +92,7 @@ describe('AuthService (unit)', () => {
     it('should throw UnauthorizedException if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       await expect(service.login(dto)).rejects.toThrow(
-        Exc.UnauthorizedException,
+        UnauthorizedCustomError,
       );
     });
 
@@ -116,7 +108,7 @@ describe('AuthService (unit)', () => {
       const wrongDto: LoginDto = { login, password: 'wrong' };
 
       await expect(service.login(wrongDto)).rejects.toThrow(
-        Exc.UnauthorizedException,
+        UnauthorizedCustomError,
       );
     });
 
@@ -147,27 +139,27 @@ describe('AuthService (unit)', () => {
   describe('refresh', () => {
     it('should throw UnauthorizedException if no token provided', async () => {
       await expect(service.refresh('')).rejects.toThrow(
-        Exc.UnauthorizedException,
+        UnauthorizedCustomError
       );
     });
 
     it('should throw ForbiddenException if token is invalidated', async () => {
       invalidatedRefreshTokens.add(wrongToken);
       await expect(service.refresh(wrongToken)).rejects.toThrow(
-        Exc.ForbiddenException,
+        ForbiddenCustomError
       );
     });
 
     it('should throw ForbiddenException if token format invalid', async () => {
       await expect(service.refresh(wrongToken)).rejects.toThrow(
-        Exc.ForbiddenException,
+        ForbiddenCustomError,
       );
     });
 
     it('should throw ForbiddenException if jwt.verifyAsync throws', async () => {
       jwt.verifyAsync.mockRejectedValue(new Error('bad token'));
       await expect(service.refresh(wrongToken)).rejects.toThrow(
-        Exc.ForbiddenException,
+        ForbiddenCustomError,
       );
     });
 
@@ -190,7 +182,7 @@ describe('AuthService (unit)', () => {
       const result = await service.refresh(token);
 
       expect(jwt.verifyAsync).toHaveBeenCalledWith(token, {
-        secret: TEST_KEY_VALUE[JWT_REFRESH_SECRET],
+        secret: TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.JWT_REFRESH_SECRET],
       });
 
       expect(result).toEqual({
@@ -204,7 +196,7 @@ describe('AuthService (unit)', () => {
       prisma.user.findUnique.mockResolvedValue(null);
 
       await expect(service.refresh(token)).rejects.toThrow(
-        Exc.UnauthorizedException,
+        UnauthorizedCustomError,
       );
     });
   });
@@ -223,8 +215,8 @@ describe('AuthService (unit)', () => {
         1,
         { userId: id, login, role },
         {
-          secret: TEST_KEY_VALUE[JWT_SECRET], // "jwt_secret"
-          expiresIn: TEST_KEY_VALUE[ACCESS_TTL], // "15m"
+          secret: TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.JWT_SECRET], // "jwt_secret"
+          expiresIn: TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.ACCESS_TTL], // "15m"
         },
       );
 
@@ -232,8 +224,8 @@ describe('AuthService (unit)', () => {
         2,
         { userId: id, login, role },
         {
-          secret: TEST_KEY_VALUE[JWT_REFRESH_SECRET], // "jwt_refresh_secret"
-          expiresIn: TEST_KEY_VALUE[REFRESH_TTL], // "7d"
+          secret: TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.JWT_REFRESH_SECRET], // "jwt_refresh_secret"
+          expiresIn: TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.REFRESH_TTL], // "7d"
         },
       );
 
@@ -245,24 +237,24 @@ describe('AuthService (unit)', () => {
   describe('constructor', () => {
     it('should read all config values', () => {
       expect(configService.get).toHaveBeenCalledWith(
-        ACCESS_TTL,
-        TEST_KEY_VALUE[ACCESS_TTL],
+        TEST_UTIL.ACCESS_TTL,
+        TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.ACCESS_TTL],
       );
       expect(configService.get).toHaveBeenCalledWith(
-        REFRESH_TTL,
-        TEST_KEY_VALUE[REFRESH_TTL],
+        TEST_UTIL.REFRESH_TTL,
+        TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.REFRESH_TTL],
       );
       expect(configService.get).toHaveBeenCalledWith(
-        JWT_SECRET,
-        TEST_KEY_VALUE[JWT_SECRET],
+        TEST_UTIL.JWT_SECRET,
+        TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.JWT_SECRET],
       );
       expect(configService.get).toHaveBeenCalledWith(
-        JWT_REFRESH_SECRET,
-        TEST_KEY_VALUE[JWT_REFRESH_SECRET],
+        TEST_UTIL.JWT_REFRESH_SECRET,
+        TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.JWT_REFRESH_SECRET],
       );
       expect(configService.get).toHaveBeenCalledWith(
-        CRYPT_SALT,
-        TEST_KEY_VALUE[CRYPT_SALT],
+        TEST_UTIL.CRYPT_SALT,
+        TEST_UTIL.TEST_KEY_VALUE[TEST_UTIL.CRYPT_SALT],
       );
     });
   });

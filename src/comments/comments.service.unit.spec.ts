@@ -4,10 +4,9 @@ import { PrismaService } from '../prismaService/prisma.service';
 import * as TEST_UTIL from '../test-utils';
 import * as C from '../constants';
 import {
-  NotFoundException,
-  ForbiddenException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { ForbiddenCustomError, NotFoundCustomError } from '../errors';
 
 describe('CommentsService (unit)', () => {
   let prisma: ReturnType<typeof TEST_UTIL.createPrismaMock>;
@@ -49,7 +48,7 @@ describe('CommentsService (unit)', () => {
     prisma.comment.findUnique.mockResolvedValue(null);
 
     await expect(service.findOne(TEST_UTIL.TEST_ID)).rejects.toThrow(
-      NotFoundException,
+      NotFoundCustomError,
     );
   });
 
@@ -112,7 +111,7 @@ describe('CommentsService (unit)', () => {
     const user = { userId: TEST_UTIL.TEST_USER_ID_2, role: C.EDITOR };
 
     await expect(service.remove(testComment.id, user)).rejects.toThrow(
-      ForbiddenException,
+      ForbiddenCustomError,
     );
   });
 
@@ -121,6 +120,6 @@ describe('CommentsService (unit)', () => {
 
     await expect(
       service.remove(TEST_UTIL.TEST_ID, { userId: 'x', role: C.ADMIN }),
-    ).rejects.toThrow(NotFoundException);
+    ).rejects.toThrow(NotFoundCustomError);
   });
 });
