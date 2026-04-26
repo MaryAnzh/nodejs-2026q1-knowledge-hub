@@ -1,20 +1,20 @@
-import { ADMIN, EDITOR, VIEWER } from '../constants';
-
-export type UserRoleType = typeof ADMIN | typeof EDITOR | typeof VIEWER;
+import { Role, User } from '@prisma/client';
 
 export type CreateUserDto = {
   login: string;
   password: string;
-  role?: UserRoleType;
+  role?: Role;
 };
 
-export type UserType = CreateUserDto & {
-  id: string; // uuid v4
-  createdAt: number; // timestamp of creation
-  updatedAt: number; // timestamp of last update
-};
-
-export type UpdatePasswordDto = Partial<Pick<UserType, 'login' | 'role'>> & {
+export type UpdatePasswordDto = {
   oldPassword: string;
   newPassword: string;
+};
+
+export type ResponseUserType = Omit<
+  User,
+  'password' | 'createdAt' | 'updatedAt'
+> & {
+  createdAt: number;
+  updatedAt: number;
 };

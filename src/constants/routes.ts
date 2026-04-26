@@ -3,4 +3,5 @@ export const ROUTES = {
   ARTICLE: '/article',
   CATEGORY: '/category',
   COMMENT: '/comment',
+  HEALTH: '/health',
 } as const;
