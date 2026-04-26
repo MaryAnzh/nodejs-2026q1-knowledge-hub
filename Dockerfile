@@ -3,6 +3,10 @@ FROM node:24 AS builder
 
 WORKDIR /app
 
+# Передаём DATABASE_URL в момент сборки
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 
@@ -21,6 +25,10 @@ FROM node:24 AS production
 
 ENV NODE_ENV=production
 WORKDIR /app
+
+# Передаём DATABASE_URL в runtime-этап
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
 
 COPY package.json package-lock.json ./
 COPY prisma ./prisma

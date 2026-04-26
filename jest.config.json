@@ -3,7 +3,7 @@
     "ts",
     "js"
   ],
-  "rootDir": "./",
+  "rootDir": "./test",
   "testEnvironment": "node",
   "verbose": true,
   "transform": {
@@ -11,5 +11,12 @@
   },
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/src/$1"
-  }
+  },
+  "setupFiles": [
+    "dotenv/config"
+  ],
+  "setupFilesAfterEnv": [
+    "../jest.env.ts"
+  ],
+  "globalSetup": "<rootDir>/setup/seedAdmin.ts"
 }

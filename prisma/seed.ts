@@ -43,6 +43,7 @@ async function main() {
       { name: 'Science', description: 'Scientific discoveries' },
       { name: 'Lifestyle', description: 'Life and style' },
     ],
+    skipDuplicates: true,
   });
 
   // Tags
@@ -54,6 +55,7 @@ async function main() {
       { name: 'docker' },
       { name: 'database' },
     ],
+    skipDuplicates: true,
   });
 
   // Fetch tags for relations

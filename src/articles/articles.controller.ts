@@ -14,13 +14,19 @@ import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { StatusCodes as SC } from 'http-status-codes';
+import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
+
+import { Roles } from '../auth/decorators/roles.decorator';
+import { User } from '../auth/decorators/user.decorator';
 
 import * as C from '../constants';
 import * as T from '../types';
 
 import { ArticleStatus } from '@prisma/client';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Auth } from '../auth/decorators/auth.decorator';
 
+@Auth()
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
@@ -70,6 +76,7 @@ export class ArticlesController {
     return this.service.findOne(id);
   }
 
+  @Roles(Role.editor, Role.admin)
   @Post()
   @ApiResponse({ status: SC.CREATED, description: 'Article created' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
@@ -78,22 +85,28 @@ export class ArticlesController {
   }
 
   @Put(':id')
+  @Roles(Role.editor, Role.admin)
   @ApiResponse({ status: SC.OK, description: 'Article updated' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID or DTO' })
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() dto: UpdateArticleDto,
+    @User() user: T.TokenPayloadType,
   ) {
-    return this.service.update(id, dto);
+    return this.service.update(id, dto, user);
   }
 
+  @Roles(Role.admin, Role.editor)
   @Delete(':id')
-  @HttpCode(C.DELETED_CODE)
-  @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' })
-  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
-  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' })
-  delete(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.service.remove(id);
+  @HttpCode(SC.NO_CONTENT) // 204
+  @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' }) // 204
+  @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' }) // 400
+  @ApiResponse({ status: SC.NOT_FOUND, description: 'Article not found' }) // 404
+  delete(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @User() user: T.TokenPayloadType,
+  ) {
+    return this.service.remove(id, user);
   }
 }

@@ -17,7 +17,11 @@ import * as C from '../constants';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
+@Auth()
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
@@ -38,6 +42,7 @@ export class CategoriesController {
   }
 
   @Post()
+  @Roles(Role.admin)
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({ status: SC.CREATED, description: 'Category created' })
   create(@Body() dto: CreateCategoryDto) {
@@ -45,6 +50,7 @@ export class CategoriesController {
   }
 
   @Put(':id')
+  @Roles(Role.admin)
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({ status: SC.OK, description: 'Category updated' })
@@ -56,6 +62,7 @@ export class CategoriesController {
     return this.service.update(id, dto);
   }
 
+  @Roles(Role.admin)
   @Delete(':id')
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id' })
