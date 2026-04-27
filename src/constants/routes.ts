@@ -5,6 +5,7 @@ export const ROUTES = {
   COMMENT: '/comment',
   HEALTH: '/health',
   AUTH: '/auth',
+  AI: 'ai',
 } as const;
 
 export const PUBLIC_ROUTES = [

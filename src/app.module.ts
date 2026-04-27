@@ -15,6 +15,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app-service';
 import { AppLoggerModule } from './logger/logger.module';
 import * as C from './constants';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import * as C from './constants';
     HealthModule,
     PrismaModule,
     AppLoggerModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [
