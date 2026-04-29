@@ -46,4 +46,6 @@ USER appuser
 
 EXPOSE 4000
 
+ENV HTTP_PROXY=http://host.docker.internal:8888
+ENV HTTPS_PROXY=http://host.docker.internal:8888
 CMD ["node", "dist/main.js"]

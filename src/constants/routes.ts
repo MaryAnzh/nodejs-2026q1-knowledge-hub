@@ -9,10 +9,11 @@ export const ROUTES = {
 } as const;
 
 export const PUBLIC_ROUTES = [
-  '/health',
+  ROUTES.HEALTH,
   '/auth/signup',
   '/auth/login',
   '/auth/refresh',
   '/doc',
   '/',
+  '/ai/test'
 ];

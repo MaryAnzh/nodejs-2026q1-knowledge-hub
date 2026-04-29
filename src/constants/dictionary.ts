@@ -29,6 +29,7 @@ export const {
   CATEGORY,
   COMMENT,
   APP_EXPORTS,
+  GEMINI_API_REQUEST_FAILED,
 } = {
   APP_EXPORTS: 'App exports',
   HELLO: 'Hello, App running',
@@ -60,4 +61,5 @@ export const {
   TAGS_CANNOT_BE_EMPTY: 'Tags array cannot be empty',
   DUPLICATE_TAG: 'Duplicate tags are not allowed',
   CATEGORY: 'category',
+  GEMINI_API_REQUEST_FAILED: 'Gemini API request failed',
 } as const;

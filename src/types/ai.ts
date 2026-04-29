@@ -4,3 +4,8 @@ export type PromptsSummarizeSizeType = typeof C.SHORT | typeof C.MEDIUM | typeof
 
 export type AnalyzePromptTaskType = typeof C.REVIEW | typeof C.BUGS | typeof C.OPTIMIZE | typeof C.EXPLAIN;
 
+export type CacheEntry = {
+    value: any;
+    expiresAt: number;
+}
+
