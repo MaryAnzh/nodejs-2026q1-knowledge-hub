@@ -1,8 +1,0 @@
-{
-  "totalRequests": 9,
-  "tokenUsage": 688,
-  "requestsByEndpoint": {
-    "summarize": 6,
-    "translate": 3
-  }
-}
