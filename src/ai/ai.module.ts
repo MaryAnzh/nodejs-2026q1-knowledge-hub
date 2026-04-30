@@ -5,16 +5,19 @@ import { GeminiService } from './gemini.service';
 import { RateLimitService } from './rate-limit.service';
 import { RateLimitGuard } from './rate-limit.guard';
 import { AiCacheService } from './cache.service';
+import { AppLoggerModule } from '../logger/logger.module';
+import { UsageService } from './usage.service';
 
 @Module({
-    imports: [ConfigModule],
-    controllers: [AiController],
-    providers: [
-        GeminiService,
-        AiCacheService,
-        RateLimitService,
-        RateLimitGuard
-    ],
-    exports: [GeminiService],
+  imports: [ConfigModule, AppLoggerModule],
+  controllers: [AiController],
+  providers: [
+    GeminiService,
+    AiCacheService,
+    RateLimitService,
+    RateLimitGuard,
+    UsageService
+  ],
+  exports: [GeminiService],
 })
 export class AiModule { }

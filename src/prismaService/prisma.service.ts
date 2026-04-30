@@ -6,7 +6,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class PrismaService
   extends PrismaClient
-  implements OnModuleInit, OnModuleDestroy {
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor(private readonly configService: ConfigService) {
     super({
       adapter: new PrismaPg({

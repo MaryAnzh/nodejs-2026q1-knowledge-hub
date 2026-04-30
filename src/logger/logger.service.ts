@@ -132,7 +132,10 @@ export class AppLogger extends ConsoleLogger {
   verbose(message: unknown, context?: string) {
     this.show(C.VERBOSE, message, context);
   }
+
   fatal(message: unknown, context?: string) {
     this.show(C.FATAL, message, context);
   }
+
+
 }

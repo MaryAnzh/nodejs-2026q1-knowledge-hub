@@ -18,6 +18,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "test:jest": "cross-env TEST_MODE=auth jest --runInBand --testPathPattern \"auth|rbac|articles|comments|categories|users\"",
+    "test:ai": "cross-env TEST_MODE=ai jest --runInBand --testPathPattern \"ai\"",
     "test:unit": "vitest --run",
     "test": "npm run test:jest && npm run test:unit",
     "test:coverage": "vitest run --coverage",

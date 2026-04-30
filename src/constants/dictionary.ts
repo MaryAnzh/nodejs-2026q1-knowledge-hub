@@ -30,6 +30,7 @@ export const {
   COMMENT,
   APP_EXPORTS,
   GEMINI_API_REQUEST_FAILED,
+  RATE_LIMIT,
 } = {
   APP_EXPORTS: 'App exports',
   HELLO: 'Hello, App running',
@@ -62,4 +63,5 @@ export const {
   DUPLICATE_TAG: 'Duplicate tags are not allowed',
   CATEGORY: 'category',
   GEMINI_API_REQUEST_FAILED: 'Gemini API request failed',
+  RATE_LIMIT: 'Rate limit exceeded',
 } as const;
