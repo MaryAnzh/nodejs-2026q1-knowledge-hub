@@ -11,8 +11,9 @@ import { StatusCodes } from 'http-status-codes';
 import * as C from '../constants';
 import { AiCacheService } from './cache.service';
 import { AppLogger } from '../logger/logger.service';
-import { AIRoutesType, GeminiResponse } from '../types';
+import { AIRoutesType, GeminiErrType, GeminiResponse } from '../types';
 import { UsageService } from './usage.service';
+import { validateAiResponse } from './validators/ai-response.validator';
 
 @Injectable()
 export class GeminiService {
@@ -82,22 +83,18 @@ export class GeminiService {
                     )
                 );
                 await this.usage.increment(entity, data.usageMetadata.promptTokensDetails.at(0)?.tokenCount ?? 0);
-
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const text = validateAiResponse(rawText);
 
                 if (!text) {
-                    throw new InternalServerErrorException('Gemini returned no text');
+                    throw new InternalServerErrorException(C.AI_RESP_UNAVAILABLE);
                 }
 
                 this.cache.set(cacheKey, text);
-
                 return text;
             } catch (error) {
-                const status = (error as any).response?.status;
+                const status = (error as GeminiErrType).response?.status;
                 await this.usage.increment(entity, 0);
-
-                this.logger.debug(`Status from G-service ${status}`);
-                this.logger.debug(error);
 
                 // retry on 503
                 if (status === 503 && attempt < maxRetries) {
@@ -107,28 +104,28 @@ export class GeminiService {
 
                 if (status === 503) {
                     throw new HttpException(
-                        { message: 'Gemini unavailable' },
-                        StatusCodes.SERVICE_UNAVAILABLE,
+                        { message: `${this.model} is currently unavailable. Please try again later.` },
+                        StatusCodes.SERVICE_UNAVAILABLE, // 503
                     );
                 }
 
                 if (status === 429) {
                     throw new HttpException(
                         { message: C.RATE_LIMIT },
-                        StatusCodes.TOO_MANY_REQUESTS,
+                        StatusCodes.TOO_MANY_REQUESTS, // 429
                     );
                 }
 
                 if (status === 400) {
                     throw new HttpException(
-                        { message: 'Wrong location' },
+                        { message: C.NOT_SUPPORTED_LOCATION },
                         StatusCodes.BAD_REQUEST,
                     );
                 }
 
                 throw new HttpException(
                     { message: C.GEMINI_API_REQUEST_FAILED },
-                    StatusCodes.INTERNAL_SERVER_ERROR,
+                    StatusCodes.INTERNAL_SERVER_ERROR, // 500
                 );
             }
         }

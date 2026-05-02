@@ -23,7 +23,7 @@ export type GeminiErrDataType = {
 };
 
 export type GeminiErrType = {
-    response?: { data: GeminiErrDataType };
+    response?: { status: number };
     config?: { url: string };
 };
 

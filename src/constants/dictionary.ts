@@ -31,6 +31,8 @@ export const {
   APP_EXPORTS,
   GEMINI_API_REQUEST_FAILED,
   RATE_LIMIT,
+  AI_RESP_UNAVAILABLE,
+  NOT_SUPPORTED_LOCATION,
 } = {
   APP_EXPORTS: 'App exports',
   HELLO: 'Hello, App running',
@@ -64,4 +66,6 @@ export const {
   CATEGORY: 'category',
   GEMINI_API_REQUEST_FAILED: 'Gemini API request failed',
   RATE_LIMIT: 'Rate limit exceeded',
+  AI_RESP_UNAVAILABLE: 'AI response unavailable',
+  NOT_SUPPORTED_LOCATION: 'User from this location is not supported',
 } as const;
