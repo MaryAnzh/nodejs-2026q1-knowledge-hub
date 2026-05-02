@@ -72,3 +72,5 @@ export type GeminiGenerateReturnType = {
     text: string;
     totalToken: number;
 }
+
+export type AIRoutesType = typeof C.AI_ROUTES[keyof typeof C.AI_ROUTES];

@@ -14,7 +14,7 @@ import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import { StatusCodes as SC } from 'http-status-codes';
-import { ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -30,9 +30,10 @@ import { Auth } from '../auth/decorators/auth.decorator';
 @ApiTags(C.ARTICLES)
 @Controller(C.ROUTES.ARTICLE)
 export class ArticlesController {
-  constructor(private readonly service: ArticlesService) {}
+  constructor(private readonly service: ArticlesService) { }
 
   @Get()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiResponse({ status: SC.OK, description: 'List of articles' })
   @ApiQuery({ name: 'status', required: false, enum: ArticleStatus })
   @ApiQuery({ name: 'categoryId', required: false })
@@ -69,6 +70,7 @@ export class ArticlesController {
   }
 
   @Get(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiResponse({ status: SC.OK, description: 'Article found' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
   @ApiResponse({ status: SC.NOT_FOUND, description: C.ARTICLE_NOT_FOUND })
@@ -76,8 +78,11 @@ export class ArticlesController {
     return this.service.findOne(id);
   }
 
-  @Roles(Role.editor, Role.admin)
   @Post()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
+  @ApiBearerAuth(C.ACCESS_TOKEN)
+  @Roles(Role.editor, Role.admin)
+
   @ApiResponse({ status: SC.CREATED, description: 'Article created' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid DTO' })
   create(@Body() dto: CreateArticleDto) {
@@ -85,6 +90,7 @@ export class ArticlesController {
   }
 
   @Put(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.editor, Role.admin)
   @ApiResponse({ status: SC.OK, description: 'Article updated' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID or DTO' })
@@ -97,8 +103,9 @@ export class ArticlesController {
     return this.service.update(id, dto, user);
   }
 
-  @Roles(Role.admin, Role.editor)
   @Delete(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
+  @Roles(Role.admin, Role.editor)
   @HttpCode(SC.NO_CONTENT) // 204
   @ApiResponse({ status: SC.NO_CONTENT, description: 'Article deleted' }) // 204
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' }) // 400

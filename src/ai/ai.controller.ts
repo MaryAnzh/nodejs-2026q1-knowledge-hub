@@ -15,8 +15,6 @@ import {
 } from './prompts';
 
 import * as C from '../constants';
-import { UsageService } from './usage.service';
-import { GeminiErrType, GeminiResponse } from '../types';
 
 import { StatusCodes as SC } from 'http-status-codes';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -27,14 +25,14 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 export class AiController {
   constructor(
     private readonly gemini: GeminiService,
-    private readonly usage: UsageService,
   ) { }
 
   @ApiOperation({ summary: 'AI health check' })
   @ApiResponse({ status: SC.OK, description: 'Service is healthy' })
   @Get(C.ROUTES.HEALTH)
   async health() {
-    return this.gemini.healthCheck();
+    const data = this.gemini.healthCheck();
+    return data;
   }
 
   @ApiOperation({ summary: 'Summarize text' })
@@ -44,12 +42,9 @@ export class AiController {
   @Post(C.AI_ROUTES.SUMMARIZE)
   async summarize(@Body() dto: SummarizeArticleDto) {
     const prompt = buildSummarizePrompt(dto.text, dto.maxLength);
-    const result = await this.gemini.generate(prompt);
+    const summary = await this.gemini.generate(prompt, dto.text, C.AI_ROUTES.SUMMARIZE, { maxLength: dto.maxLength ?? 5 });
 
-    await this.usage.increment(C.AI_ROUTES.SUMMARIZE, result.totalToken);
-    return {
-      summary: result.text,
-    };
+    return ({ summary });
   }
 
   @ApiOperation({ summary: 'Translate text' })
@@ -59,13 +54,8 @@ export class AiController {
   @Post(C.AI_ROUTES.TRANSLATE)
   async translate(@Body() dto: TranslateArticleDto) {
     const prompt = buildTranslatePrompt(dto.text, dto.targetLanguage, dto.sourceLanguage);
-    const result = await this.gemini.generate(prompt);
-
-    await this.usage.increment(C.AI_ROUTES.TRANSLATE, result.totalToken);
-
-    return {
-      translation: result.text,
-    };
+    const translation = await this.gemini.generate(prompt, dto.text, C.AI_ROUTES.TRANSLATE, { targetLanguage: dto.targetLanguage ?? '' });
+    return ({ translation });
   }
 
   @ApiOperation({ summary: 'Analyze text' })
@@ -75,12 +65,8 @@ export class AiController {
   @Post(C.AI_ROUTES.ANALYZE)
   async analyze(@Body() dto: AnalyzeArticleDto) {
     const prompt = buildAnalyzePrompt(dto.text, dto.task);
-    const result = await this.gemini.generate(prompt);
+    const analysis = await this.gemini.generate(prompt, dto.text, C.AI_ROUTES.ANALYZE, { task: dto.task ?? '' });
 
-    await this.usage.increment(C.AI_ROUTES.ANALYZE, result.totalToken);
-
-    return {
-      analysis: result.text
-    }
+    return ({ analysis })
   }
 }

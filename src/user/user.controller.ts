@@ -9,7 +9,7 @@ import {
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
@@ -28,15 +28,17 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 @ApiTags(C.USER)
 @Controller(C.ROUTES.USER)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Get()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiResponse({ status: SC.OK, description: 'Get all users' })
   findAll(): Promise<T.ResponseUserType[]> {
     return this.userService.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiParam({ name: 'id', description: 'User ID (UUID)' })
   @ApiResponse({ status: SC.OK, description: 'Get user by id' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
@@ -48,6 +50,7 @@ export class UserController {
   }
 
   @Post()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.admin)
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: SC.CREATED, description: 'User created' })
@@ -57,6 +60,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiParam({ name: 'id', description: 'User ID (UUID)' })
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: SC.OK, description: 'User updated' })
@@ -71,6 +75,7 @@ export class UserController {
   }
 
   @Put(':id/role')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.admin)
   @ApiParam({ name: 'id', description: 'User ID (UUID)' })
   @ApiBody({ type: UpdateUserRoleDto })
@@ -85,6 +90,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.admin)
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id', description: 'User ID (UUID)' })

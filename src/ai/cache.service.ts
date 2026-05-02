@@ -33,7 +33,14 @@ export class AiCacheService {
     });
   }
 
-  buildKey(model: string, prompt: string, params: any) {
-    return `${model}:${prompt}:${JSON.stringify(params)}`;
+  buildKey(model: string, text: string, entity: string, params: any) {
+    const normalizedText = text
+      .replace(/(\r\n|\n|\r)/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    const normalizedParams = JSON.stringify(params);
+
+    return `${model}:${entity}:${normalizedText}:${normalizedParams}`;
   }
 }

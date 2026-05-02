@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { HttpModule } from '@nestjs/axios';
 
 import { ArticlesModule } from './articles/articles.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -28,6 +29,7 @@ import { AiModule } from './ai/ai.module';
     PrismaModule,
     AppLoggerModule,
     AiModule,
+    HttpModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { AiController } from './ai.controller';
 import { GeminiService } from './gemini.service';
@@ -9,7 +10,7 @@ import { AppLoggerModule } from '../logger/logger.module';
 import { UsageService } from './usage.service';
 
 @Module({
-  imports: [ConfigModule, AppLoggerModule],
+  imports: [ConfigModule, AppLoggerModule, HttpModule],
   controllers: [AiController],
   providers: [
     GeminiService,
