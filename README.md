@@ -16,3 +16,9 @@ bash
 docker compose build app
 docker compose up -d
 npx prisma migrate deploy
+
+4. npm run test:ai
+
+#  us it in .env if your use prosy to avoid rate limit during development
+# HTTP_PROXY:  http://host.docker.internal:8888
+# HTTPS_PROXY: http://host.docker.internal:8888
