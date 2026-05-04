@@ -74,3 +74,10 @@ export type GeminiGenerateReturnType = {
 }
 
 export type AIRoutesType = typeof C.AI_ROUTES[keyof typeof C.AI_ROUTES];
+
+export type AIAssistantRoleType = typeof C.USER | typeof C.ASSISTANT;
+export type SessionMessageType = {
+    role: AIAssistantRoleType;
+    text: string;
+    timestamp: number;
+}

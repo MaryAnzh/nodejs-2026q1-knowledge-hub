@@ -8,6 +8,8 @@ import { RateLimitGuard } from './rate-limit.guard';
 import { AiCacheService } from './cache.service';
 import { AppLoggerModule } from '../logger/logger.module';
 import { UsageService } from './usage.service';
+import { AiObservabilityService } from './observability.service';
+import { AiSessionService } from './ai-session.service';
 
 @Module({
   imports: [ConfigModule, AppLoggerModule, HttpModule],
@@ -17,7 +19,9 @@ import { UsageService } from './usage.service';
     AiCacheService,
     RateLimitService,
     RateLimitGuard,
-    UsageService
+    UsageService,
+    AiObservabilityService,
+    AiSessionService,
   ],
   exports: [GeminiService],
 })

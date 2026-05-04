@@ -33,6 +33,9 @@ export const {
   RATE_LIMIT,
   AI_RESP_UNAVAILABLE,
   NOT_SUPPORTED_LOCATION,
+  PLEAS_TRY_LATER,
+  ASSISTANT,
+  GEMINI,
 } = {
   APP_EXPORTS: 'App exports',
   HELLO: 'Hello, App running',
@@ -68,4 +71,7 @@ export const {
   RATE_LIMIT: 'Rate limit exceeded',
   AI_RESP_UNAVAILABLE: 'AI response unavailable',
   NOT_SUPPORTED_LOCATION: 'User from this location is not supported',
+  PLEAS_TRY_LATER: 'is currently unavailable. Please try again later.',
+  ASSISTANT: 'assistant',
+  GEMINI: 'Gemini',
 } as const;

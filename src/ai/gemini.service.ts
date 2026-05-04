@@ -14,6 +14,7 @@ import { AppLogger } from '../logger/logger.service';
 import { AIRoutesType, GeminiErrType, GeminiResponse } from '../types';
 import { UsageService } from './usage.service';
 import { validateAiResponse } from './validators/ai-response.validator';
+import { AiObservabilityService } from './observability.service';
 
 @Injectable()
 export class GeminiService {
@@ -22,11 +23,12 @@ export class GeminiService {
     private readonly model: string;
 
     constructor(
-        private readonly http: HttpService,
-        private readonly config: ConfigService,
-        private readonly cache: AiCacheService,
-        private readonly logger: AppLogger,
-        private readonly usage: UsageService,
+        private readonly http?: HttpService,
+        private readonly config?: ConfigService,
+        private readonly cache?: AiCacheService,
+        private readonly logger?: AppLogger,
+        private readonly usage?: UsageService,
+        private readonly observability?: AiObservabilityService,
 
     ) {
         this.apiKey = this.config.get<string>(C.GEMINI_API_KEY);
@@ -57,13 +59,18 @@ export class GeminiService {
         }
     }
 
-    async generate(prompt: string, text: string, entity: AIRoutesType, params: any) {
+    async generate(prompt: string, text: string, entity: AIRoutesType, params: any): Promise<string> {
+        const start = Date.now();
         const cacheKey = this.cache.buildKey(this.model, text, entity, params);
         const cached = this.cache.get(cacheKey);
-        console.log(`Retrieving from cache for key: ${cacheKey}`);
-        console.log(`Cache hit: ${!!cached}`);
-        if (cached) return cached; ``
-        console.log(`Cache miss for key: ${cacheKey}, making API request...`); ``
+        this.logger.log(`Cache retrieval for key: ${cacheKey} took ${Date.now() - start}ms`);
+        this.logger.log(`Cache ${cached ? 'hit' : 'miss'} for key: ${cacheKey}`);
+
+        if (cached) {
+            this.observability.recordCacheHit();
+            return cached;
+        }
+
         const maxRetries = 3;
 
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -91,6 +98,9 @@ export class GeminiService {
                 }
 
                 this.cache.set(cacheKey, text);
+                const latency = Date.now() - start;
+                this.observability.recordLatency(latency);
+                this.observability.recordStatus(200);
                 return text;
             } catch (error) {
                 const status = (error as GeminiErrType).response?.status;
@@ -102,14 +112,19 @@ export class GeminiService {
                     continue;
                 }
 
+                this.observability.recordStatus(status);
+
                 if (status === 503) {
+                    const m = `${this.model} ${C.PLEAS_TRY_LATER}`;
+                    this.observability.recordError(m);
                     throw new HttpException(
-                        { message: `${this.model} is currently unavailable. Please try again later.` },
+                        { message: m },
                         StatusCodes.SERVICE_UNAVAILABLE, // 503
                     );
                 }
 
                 if (status === 429) {
+                    this.observability.recordError(C.RATE_LIMIT);
                     throw new HttpException(
                         { message: C.RATE_LIMIT },
                         StatusCodes.TOO_MANY_REQUESTS, // 429
@@ -117,12 +132,14 @@ export class GeminiService {
                 }
 
                 if (status === 400) {
+                    this.observability.recordError(C.NOT_SUPPORTED_LOCATION);
                     throw new HttpException(
                         { message: C.NOT_SUPPORTED_LOCATION },
                         StatusCodes.BAD_REQUEST,
                     );
                 }
 
+                this.observability.recordError(C.GEMINI_API_REQUEST_FAILED);
                 throw new HttpException(
                     { message: C.GEMINI_API_REQUEST_FAILED },
                     StatusCodes.INTERNAL_SERVER_ERROR, // 500
