@@ -1,0 +1,5 @@
+export const GEMINI_API_KEY = 'GEMINI_API_KEY';
+export const GEMINI_API_BASE_URL = 'GEMINI_API_BASE_URL';
+export const GEMINI_MODEL = 'GEMINI_MODEL';
+export const AI_RATE_LIMIT_RPM = 'AI_RATE_LIMIT_RPM';
+export const AI_CACHE_TTL_SEC = 'AI_CACHE_TTL_SEC';

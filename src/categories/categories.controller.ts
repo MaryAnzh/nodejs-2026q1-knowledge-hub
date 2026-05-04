@@ -9,7 +9,7 @@ import {
   HttpCode,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import * as C from '../constants';
@@ -25,15 +25,17 @@ import { Role } from '@prisma/client';
 @ApiTags(C.CATEGORIES)
 @Controller(C.ROUTES.CATEGORY)
 export class CategoriesController {
-  constructor(private readonly service: CategoriesService) {}
+  constructor(private readonly service: CategoriesService) { }
 
   @Get()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiResponse({ status: SC.OK, description: 'List of categories' })
   getAll() {
     return this.service.findAll();
   }
 
   @Get(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiParam({ name: 'id', example: 'a3f1c8b2-4c9e-4e7a-9d7f-123456789abc' })
   @ApiResponse({ status: SC.OK, description: 'Category found' })
   @ApiResponse({ status: SC.NOT_FOUND, description: 'Category not found' })
@@ -42,6 +44,7 @@ export class CategoriesController {
   }
 
   @Post()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.admin)
   @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({ status: SC.CREATED, description: 'Category created' })
@@ -50,6 +53,7 @@ export class CategoriesController {
   }
 
   @Put(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.admin)
   @ApiParam({ name: 'id' })
   @ApiBody({ type: UpdateCategoryDto })
@@ -62,8 +66,9 @@ export class CategoriesController {
     return this.service.update(id, dto);
   }
 
-  @Roles(Role.admin)
   @Delete(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
+  @Roles(Role.admin)
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: SC.NO_CONTENT, description: 'Category deleted' })

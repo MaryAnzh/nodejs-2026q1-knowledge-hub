@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
+import { HttpModule } from '@nestjs/axios';
 
 import { ArticlesModule } from './articles/articles.module';
 import { CategoriesModule } from './categories/categories.module';
@@ -15,6 +16,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app-service';
 import { AppLoggerModule } from './logger/logger.module';
 import * as C from './constants';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import * as C from './constants';
     HealthModule,
     PrismaModule,
     AppLoggerModule,
+    AiModule,
+    HttpModule,
   ],
   controllers: [AppController],
   providers: [

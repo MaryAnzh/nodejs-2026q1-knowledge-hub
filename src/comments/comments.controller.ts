@@ -17,6 +17,7 @@ import {
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { StatusCodes as SC } from 'http-status-codes';
 import * as C from '../constants';
@@ -30,9 +31,10 @@ import { Role } from '@prisma/client';
 @ApiTags(C.COMMENTS)
 @Controller(C.ROUTES.COMMENT)
 export class CommentsController {
-  constructor(private readonly service: CommentsService) {}
+  constructor(private readonly service: CommentsService) { }
 
   @Get()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiQuery({ name: 'articleId', required: false })
   @ApiResponse({ status: SC.OK, description: 'List of comments for article' })
   getAll(@Query('articleId') articleId?: string) {
@@ -41,6 +43,7 @@ export class CommentsController {
   }
 
   @Get(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @ApiParam({ name: 'id' })
   @ApiResponse({ status: SC.OK, description: 'Comment found' })
   @ApiResponse({ status: SC.BAD_REQUEST, description: 'Invalid UUID' })
@@ -50,6 +53,7 @@ export class CommentsController {
   }
 
   @Post()
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.editor, Role.admin)
   @ApiBody({ type: CreateCommentDto })
   @ApiResponse({ status: SC.CREATED, description: 'Comment created' })
@@ -59,6 +63,7 @@ export class CommentsController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth(C.ACCESS_TOKEN)
   @Roles(Role.editor, Role.admin)
   @HttpCode(SC.NO_CONTENT)
   @ApiParam({ name: 'id' })

@@ -7,6 +7,7 @@ ARG DATABASE_URL
 ENV DATABASE_URL=${DATABASE_URL}
 
 RUN mkdir -p /app/logs && chown -R node:node /app/logs
+RUN mkdir -p /app/ai-stat && chown -R node:node /app/ai-stat
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 
@@ -40,10 +41,13 @@ COPY --from=builder /app/nest-cli.json ./
 COPY --from=builder /app/tsconfig*.json ./
 
 RUN mkdir -p /app/logs
+RUN mkdir -p /app/ai-stat
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 RUN chown -R appuser:appgroup /app/logs
 USER appuser
 
 EXPOSE 4000
 
+# ENV HTTP_PROXY=http://host.docker.internal:8888
+# ENV HTTPS_PROXY=http://host.docker.internal:8888
 CMD ["node", "dist/main.js"]

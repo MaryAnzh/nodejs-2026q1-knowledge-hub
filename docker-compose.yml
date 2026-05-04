@@ -11,7 +11,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    env_file: .env.docker
+    env_file: .env
     ports:
       - "4000:4000"
     restart: on-failure
@@ -24,6 +24,7 @@ services:
       retries: 5
     volumes:
       - ./logs:/app/logs
+      - ./ai-stat:/app/ai-stat
   db:
     image: postgres:16-alpine
     container_name: knowledge-hub-db

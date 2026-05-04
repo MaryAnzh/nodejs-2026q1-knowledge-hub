@@ -11,7 +11,7 @@ import * as C from '../constants';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(private readonly logger: AppLogger) {}
+  constructor(private readonly logger: AppLogger) { }
 
   private mask(body: any) {
     if (!body || typeof body !== 'object') return body;
@@ -32,28 +32,21 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const isHttp = exception instanceof HttpException;
-    const status = isHttp ? exception.getStatus() : SC.INTERNAL_SERVER_ERROR;
 
-    const message =
-      isHttp && (exception as any).details
-        ? (exception as any).details
-        : isHttp
-          ? exception.message
-          : C.INTERNAL_SERVER_ERROR;
+    const status = isHttp
+      ? exception.getStatus()
+      : SC.INTERNAL_SERVER_ERROR;
 
-    const errorResponse = {
-      statusCode: status,
-      timestamp: new Date().toISOString(),
-      path: request.url,
-      message,
-    };
+    const responseBody = isHttp
+      ? exception.getResponse()
+      : { message: C.INTERNAL_SERVER_ERROR };
 
     this.logger.error(
       {
         method: request.method,
         url: request.url,
         body: this.mask(request.body),
-        message,
+        error: responseBody,
       },
       'ERROR',
     );
@@ -62,6 +55,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.logger.error(exception.stack);
     }
 
-    response.status(status).json(errorResponse);
+    response.status(status).json({
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+      ...(
+        typeof responseBody === 'string'
+          ? { message: responseBody }
+          : responseBody
+      ),
+    });
   }
 }

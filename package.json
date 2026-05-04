@@ -13,11 +13,12 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npm run build && nest start",
-    "start:dev": "nest start --watch",
+    "start:dev": "cross-env DATABASE_URL=$DATABASE_URL_LOCAL nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",
     "test:jest": "cross-env TEST_MODE=auth jest --runInBand --testPathPattern \"auth|rbac|articles|comments|categories|users\"",
+    "test:ai": "cross-env TEST_MODE=ai jest --runInBand --testPathPattern \"ai\"",
     "test:unit": "vitest --run",
     "test": "npm run test:jest && npm run test:unit",
     "test:coverage": "vitest run --coverage",
@@ -30,6 +31,8 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^10.4.16",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^10.4.15",
