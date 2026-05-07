@@ -81,3 +81,11 @@ export type SessionMessageType = {
     text: string;
     timestamp: number;
 }
+
+export type VectorRecordType = {
+    id: string;
+    articleId: string;
+    chunk: string;
+    embedding: number[];
+    metadata: Record<string, any>;
+}
