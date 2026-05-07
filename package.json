@@ -13,7 +13,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npm run build && nest start",
-    "start:dev": "cross-env DATABASE_URL=$DATABASE_URL_LOCAL nest start --watch",
+    "start:dev": "cross-env DATABASE_URL=$DATABASE_URL nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs}/**/*.ts\" --fix",

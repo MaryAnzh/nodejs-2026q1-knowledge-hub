@@ -6,11 +6,13 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        DATABASE_URL: "postgresql://postgres:postgres@db:5432/knowledge_hub"
+        DATABASE_URL: process.env.DATABASE_URL_DOCKER
     container_name: knowledge-hub-app
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/knowledge_hub
     env_file: .env
     ports:
       - "4000:4000"
