@@ -1,6 +1,7 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { RagService } from './services/rag.service';
 import { StatusCodes as SC } from 'http-status-codes';
+
+import { RagService } from './rag.service';
 
 @Controller('ai/rag')
 export class RagController {
@@ -18,5 +19,11 @@ export class RagController {
         return {
             results: await this.rag.search(body.query),
         };
+    }
+
+    @Post('chat')
+    @HttpCode(SC.OK) // 200
+    async chat(@Body() body: { query: string }) {
+        return this.rag.chat(body.query);
     }
 }

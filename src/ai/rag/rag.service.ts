@@ -61,4 +61,46 @@ export class RagService {
             metadata: r.metadata,
         }));
     }
+
+    async chat(query: string) {
+        // 1. embedding запроса
+        const queryEmbedding = await this.gemini.embed(query);
+
+        // 2. semantic search
+        const ranked = await this.vectorStore.searchByEmbedding(queryEmbedding);
+
+        // 3. берём топ-5 чанков
+        const topChunks = ranked.slice(0, 5);
+
+        // 4. формируем контекст
+        const context = topChunks
+            .map(c => `Article: ${c.metadata.title}\nChunk: ${c.chunk}`)
+            .join('\n\n');
+
+        const prompt = `
+You are a helpful assistant. Use ONLY the provided context.
+If the answer is not in the context, say "I don't know".
+
+Context:
+${context}
+
+User question:
+${query}
+
+Answer:
+`;
+
+        // 5. вызываем Gemini (у тебя будет свой метод)
+        const answer = await this.gemini.generate(prompt);
+
+        // 6. возвращаем ответ + источники
+        return {
+            answer,
+            sources: topChunks.map(c => ({
+                articleId: c.articleId,
+                title: c.metadata.title,
+                score: c.score,
+            })),
+        };
+    }
 }
