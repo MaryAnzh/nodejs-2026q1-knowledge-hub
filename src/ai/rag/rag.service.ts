@@ -69,10 +69,10 @@ export class RagService {
         // 2. semantic search
         const ranked = await this.vectorStore.searchByEmbedding(queryEmbedding);
 
-        // 3. берём топ-5 чанков
+        // 3.chanks
         const topChunks = ranked.slice(0, 5);
 
-        // 4. формируем контекст
+        // 4. context
         const context = topChunks
             .map(c => `Article: ${c.metadata.title}\nChunk: ${c.chunk}`)
             .join('\n\n');
@@ -90,10 +90,10 @@ ${query}
 Answer:
 `;
 
-        // 5. вызываем Gemini (у тебя будет свой метод)
+        // gemini
         const answer = await this.gemini.generate(prompt);
 
-        // 6. возвращаем ответ + источники
+        // 6. => answer
         return {
             answer,
             sources: topChunks.map(c => ({
