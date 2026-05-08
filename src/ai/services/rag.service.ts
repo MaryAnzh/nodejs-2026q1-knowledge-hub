@@ -48,4 +48,17 @@ export class RagService {
 
         return { indexed: true };
     }
+
+    async search(query: string) {
+        const queryEmbedding = await this.gemini.embed(query);
+
+        const results = await this.vectorStore.searchByEmbedding(queryEmbedding);
+
+        return results.map(r => ({
+            articleId: r.articleId,
+            chunk: r.chunk,
+            score: r.score,
+            metadata: r.metadata,
+        }));
+    }
 }
