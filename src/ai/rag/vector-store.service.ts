@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { QdrantClient } from '@qdrant/js-client-rest';
 
-import { VectorRecordType } from '../../types';
+import { SearchResultType, VectorRecordType } from '../../types';
 import * as C from '../../constants';
 import { ConfigService } from '@nestjs/config';
 
@@ -47,7 +47,7 @@ export class VectorStoreService {
         });
     }
 
-    async searchByEmbedding(queryEmbedding: number[]) {
+    async searchByEmbedding(queryEmbedding: number[]): Promise<SearchResultType[]> {
         const result = await this.client.search(this.collection, {
             vector: queryEmbedding,
             limit: 10,
@@ -56,15 +56,9 @@ export class VectorStoreService {
 
         return result.map((p: any) => ({
             articleId: p.payload.articleId,
+            articleTitle: p.payload.title,
             chunk: p.payload.chunk,
-            embedding: queryEmbedding, // можно не хранить, для поиска не нужно
-            metadata: {
-                title: p.payload.title,
-                status: p.payload.status,
-                categoryId: p.payload.categoryId ?? null,
-                tags: p.payload.tags ?? [],
-            },
-            score: p.score,
+            similarity: p.score,
         }));
     }
 

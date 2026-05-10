@@ -24,7 +24,7 @@
     "test:coverage": "vitest run --coverage",
     "test:auth": "cross-env TEST_MODE=auth jest --testPathIgnorePatterns \"refresh|rbac\" --noStackTrace --runInBand",
     "test:refresh": "cross-env TEST_MODE=auth jest --testPathPattern refresh.e2e.spec.ts --noStackTrace --runInBand",
-    "test:rag": "cross-env TEST_MODE=auth jest --testPathPattern rag.e2e.spec.ts --noStackTrace --runInBand",
+    "test:rag": "cross-env TEST_MODE=auth jest --testPathPattern rag.e2e.spec.ts --noStackTrace --runInBand --verbose",
     "test:rbac": "cross-env TEST_MODE=auth jest --testPathPattern rbac --noStackTrace --runInBand",
     "test:watch": "jest --watch",
     "test:cov": "cross-env TEST_MODE=auth jest --coverage",

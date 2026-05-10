@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import { RagService } from './rag.service';
-import { ReindexRequestType } from '../../types';
+import { RagSearchResponseType, ReindexRequestType, SearchResultType } from '../../types';
 
 @Controller('ai/rag')
 export class RagController {
@@ -16,9 +16,10 @@ export class RagController {
 
     @Post('search')
     @HttpCode(SC.OK) // 200
-    async search(@Body() body: { query: string }) {
+    async search(@Body() body: { query: string }): Promise<RagSearchResponseType> {
+        const results = await this.rag.search(body.query);
         return {
-            results: await this.rag.search(body.query),
+            results
         };
     }
 

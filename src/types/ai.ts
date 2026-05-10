@@ -99,3 +99,19 @@ export type ReindexRequestType = {
     onlyPublished?: boolean;
     articleIds?: string[];
 }
+
+export type SearchResultType = {
+    articleId: string,
+    articleTitle: string,
+    chunk: string,
+    similarity: number,
+}
+
+export type RagSearchResponseType = {
+    results: {
+        articleId: string;
+        articleTitle: string;
+        chunk: string;
+        similarity: number;
+    }[];
+};
