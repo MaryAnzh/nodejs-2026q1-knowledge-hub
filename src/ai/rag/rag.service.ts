@@ -79,4 +79,9 @@ export class RagService {
     async chat(query: string) {
         //todo
     }
+
+    async deleteArticleVectors(articleId: string) {
+        await this.vectorStore.deleteByArticleId(articleId);
+        return { deleted: true };
+    }
 }

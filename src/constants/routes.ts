@@ -41,5 +41,5 @@ export const PUBLIC_ROUTES = [
   FULL_AI_ROUTES.DIAGNOSTICS,
   '/ai/rag/index',
   '/ai/rag/search',
-  '/ai/rag/chat'
+  '/ai/rag/chat',
 ];
