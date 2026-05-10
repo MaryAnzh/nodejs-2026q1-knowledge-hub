@@ -145,6 +145,58 @@ export class GeminiService {
                     StatusCodes.INTERNAL_SERVER_ERROR, // 500
                 );
             }
+
+        }
+    }
+
+    async embed(text: string): Promise<number[]> {
+        try {
+            const model = this.config.get<string>('GEMINI_EMBEDDING_MODEL');
+
+            const { data }: any = await firstValueFrom(
+                this.http.post(
+                    `${this.baseUrl}/v1beta/models/${this.config.get('GEMINI_EMBEDDING_MODEL')}:embedContent`, {
+                    content: {
+                        parts: [{ text }],
+                    },
+                },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-goog-api-key': this.apiKey,
+                        },
+                    }
+                )
+            );
+
+            return data.embedding?.values ?? [];
+        } catch (error) {
+            const status = (error as GeminiErrType).response?.status;
+
+            if (status === 503) {
+                const m = `${this.model} ${C.PLEAS_TRY_LATER}`;
+                throw new HttpException(
+                    { message: m },
+                    StatusCodes.SERVICE_UNAVAILABLE,
+                );
+            }
+
+            if (status === 429) {
+                throw new HttpException(
+                    { message: C.RATE_LIMIT },
+                    StatusCodes.TOO_MANY_REQUESTS,
+                );
+            }
+
+            if (status === 400) {
+                throw new HttpException(
+                    { message: C.NOT_SUPPORTED_LOCATION },
+                    StatusCodes.BAD_REQUEST,
+                );
+            }
+
+            this.logger.error(error, 'Embedding error');
+            throw new InternalServerErrorException('Embedding failed');
         }
     }
 }

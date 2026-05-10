@@ -1,3 +1,4 @@
+import { Article } from '@prisma/client';
 import * as C from '../constants';
 
 export type PromptsSummarizeSizeType =
@@ -81,3 +82,70 @@ export type SessionMessageType = {
     text: string;
     timestamp: number;
 }
+
+export type VectorRecordType = {
+    id: string;
+    articleId: string;
+    chunk: string;
+    embedding: number[];
+    metadata: Record<string, any>;
+}
+
+export type ChunkConfigType = {
+    size: number;
+    overlap: number;
+}
+
+export type ReindexRequestType = {
+    onlyPublished?: boolean;
+    articleIds?: string[];
+}
+
+export type SearchResultType = {
+    articleId: string,
+    articleTitle: string,
+    chunk: string,
+    similarity: number,
+}
+
+export type RagSearchResponseType = {
+    results: {
+        articleId: string;
+        articleTitle: string;
+        chunk: string;
+        similarity: number;
+    }[];
+};
+
+export type RagChatRequest = {
+    question: string;
+    conversationId?: string;
+}
+
+export type RagChatResponse = {
+    answer: string;
+    sources: Array<{
+        articleId: string;
+        articleTitle: string;
+        relevantChunk: string;
+    }>;
+    conversationId: string;
+}
+
+export type FiltersType = keyof typeof C.ARTICLE_FILTERS;
+export type RagFilterType = {
+    must?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+    should?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+    must_not?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+};
+
+export type MixedSearchResultType = SearchResultType & Partial<Pick<Article, 'status' | 'categoryId'>> & { tags?: string[] }

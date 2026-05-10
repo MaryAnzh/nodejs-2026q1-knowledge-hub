@@ -3,13 +3,11 @@ FROM node:24 AS builder
 
 WORKDIR /app
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
 RUN mkdir -p /app/logs && chown -R node:node /app/logs
 RUN mkdir -p /app/ai-stat && chown -R node:node /app/ai-stat
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 RUN npm ci
 RUN npx prisma generate
@@ -27,11 +25,9 @@ FROM node:24 AS production
 ENV NODE_ENV=production
 WORKDIR /app
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 
 RUN npm ci --omit=dev
 RUN npx prisma generate

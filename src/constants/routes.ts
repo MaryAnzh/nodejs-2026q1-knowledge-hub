@@ -38,4 +38,8 @@ export const PUBLIC_ROUTES = [
   FULL_AI_ROUTES.SUMMARIZE,
   FULL_AI_ROUTES.TRANSLATE,
   FULL_AI_ROUTES.CHAT,
-  FULL_AI_ROUTES.DIAGNOSTICS,];
+  FULL_AI_ROUTES.DIAGNOSTICS,
+  '/ai/rag/index',
+  '/ai/rag/search',
+  '/ai/rag/chat',
+];

@@ -16,3 +16,9 @@ export const ARTICLE_STATUS_FLOW = {
   published: ['archived'],
   archived: [],
 } as const;
+
+export const ARTICLE_FILTERS = {
+  status: 'status',
+  categoryId: 'categoryId',
+  tags: 'tags'
+}

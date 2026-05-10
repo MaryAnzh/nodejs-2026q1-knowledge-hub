@@ -17,6 +17,7 @@ import { AppService } from './app-service';
 import { AppLoggerModule } from './logger/logger.module';
 import * as C from './constants';
 import { AiModule } from './ai/ai.module';
+import { RagModule } from './ai/rag/rag.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AiModule } from './ai/ai.module';
     AppLoggerModule,
     AiModule,
     HttpModule,
+    RagModule,
   ],
   controllers: [AppController],
   providers: [
