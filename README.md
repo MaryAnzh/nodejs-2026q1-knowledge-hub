@@ -10,6 +10,11 @@ cd nodejs-2026q1-knowledge-hub
 2. Switch to the logging branch
 bash
 git checkout develop_10_rag_ai
+Add .env
+If you are in a region where Google AI Studio is not available (not a free‑tier location), uncomment the proxy settings in .env and set your local proxy port.
+HTTP_PROXY:  http://host.docker.internal:8888
+HTTPS_PROXY: http://host.docker.internal:8888
+
 
 3. use it in .env if your use prosy to avoid rate limit during development
 # HTTP_PROXY:  http://host.docker.internal:8888

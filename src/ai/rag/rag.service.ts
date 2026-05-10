@@ -4,7 +4,7 @@ import { ChunkService } from './chunk.service';
 import { VectorStoreService } from './vector-store.service';
 import { randomUUID } from 'crypto';
 import { RagGeminiService } from './rag-gemini.service';
-import { RagChatResponse, RagFilterType, RagSearchResponseType, ReindexRequestType } from '../../types';
+import { MixedSearchResultType, RagChatResponse, RagFilterType, RagSearchResponseType, ReindexRequestType } from '../../types';
 
 import * as C from '../../constants';
 
@@ -16,6 +16,26 @@ export class RagService {
         private gemini: RagGeminiService,
         private vectorStore: VectorStoreService,
     ) { }
+
+    private async lexicalSearch(query: string) {
+        return this.prisma.article.findMany({
+            where: {
+                OR: [
+                    { title: { contains: query, mode: 'insensitive' } },
+                    { content: { contains: query, mode: 'insensitive' } },
+                ],
+            },
+            select: {
+                id: true,
+                title: true,
+                content: true,
+                status: true,
+                categoryId: true,
+                tags: true,
+            },
+            take: 10,
+        });
+    }
 
     async indexAllArticles({ onlyPublished = true, articleIds }: ReindexRequestType) {
         const articles = await this.prisma.article.findMany({
@@ -63,16 +83,38 @@ export class RagService {
         };
     }
 
-    async search(query: string, filters?: RagFilterType): Promise<RagSearchResponseType['results']> {
+    async search(
+        query: string,
+        filters?: RagFilterType
+    ): Promise<RagSearchResponseType['results']> {
+
         const queryEmbedding = await this.gemini.embed(query);
+        const semantic = await this.vectorStore.searchByEmbedding(queryEmbedding, filters);
 
-        const results = await this.vectorStore.searchByEmbedding(queryEmbedding, filters);
+        const lexical = await this.lexicalSearch(query);
 
-        return results.map(({ articleId, chunk, similarity, articleTitle }) => ({
-            articleId,
-            chunk,
-            similarity,
-            articleTitle,
+        const lexicalNormalized = lexical.map(a => ({
+            articleId: a.id,
+            articleTitle: a.title,
+            chunk: a.content.slice(0, 300),
+            similarity: 0.5,
+            status: a.status,
+            categoryId: a.categoryId,
+            tags: a.tags.map(t => t.name),
+        }));
+
+        const merged: MixedSearchResultType[] = [...semantic, ...lexicalNormalized];
+
+        merged.sort((a, b) => b.similarity - a.similarity);
+
+        return merged.map((item) => ({
+            articleId: item.articleId,
+            articleTitle: item.articleTitle,
+            chunk: item.chunk,
+            similarity: item.similarity,
+            status: item.status,
+            categoryId: item.categoryId,
+            tags: item.tags,
         }));
     }
 

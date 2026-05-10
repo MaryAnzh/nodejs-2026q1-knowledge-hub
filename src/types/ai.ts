@@ -1,3 +1,4 @@
+import { Article } from '@prisma/client';
 import * as C from '../constants';
 
 export type PromptsSummarizeSizeType =
@@ -146,3 +147,5 @@ export type RagFilterType = {
         match: { value: string };
     }>;
 };
+
+export type MixedSearchResultType = SearchResultType & Partial<Pick<Article, 'status' | 'categoryId'>> & { tags?: string[] }
