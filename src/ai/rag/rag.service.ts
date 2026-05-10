@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prismaService/prisma.service';
 import { ChunkService } from './chunk.service';
 import { VectorStoreService } from './vector-store.service';
 import { randomUUID } from 'crypto';
 import { RagGeminiService } from './rag-gemini.service';
-import { RagSearchResponseType, ReindexRequestType } from '../../types';
+import { RagChatResponse, RagSearchResponseType, ReindexRequestType } from '../../types';
 
 import * as C from '../../constants';
 
@@ -76,11 +76,32 @@ export class RagService {
         }));
     }
 
-    async chat(query: string) {
-        //todo
+    async chat(question: string, conversationId?: string): Promise<RagChatResponse> {
+        const queryEmbedding = await this.gemini.embed(question);
+
+        const chunks = await this.vectorStore.searchByEmbedding(queryEmbedding);
+
+        const topChunk = chunks[0]?.chunk ?? 'No relevant information found.';
+
+        const convId = conversationId ?? crypto.randomUUID();
+
+        return {
+            answer: topChunk,
+            sources: chunks.map(c => ({
+                articleId: c.articleId,
+                articleTitle: c.articleTitle,
+                relevantChunk: c.chunk,
+            })),
+            conversationId: convId,
+        };
     }
 
     async deleteArticleVectors(articleId: string) {
+        const exists = await this.prisma.article.findUnique({ where: { id: articleId } });
+        if (!exists) {
+            throw new NotFoundException(`Article with id ${articleId} not found`);
+        }
+
         await this.vectorStore.deleteByArticleId(articleId);
         return { deleted: true };
     }

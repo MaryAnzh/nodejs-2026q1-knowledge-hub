@@ -115,3 +115,18 @@ export type RagSearchResponseType = {
         similarity: number;
     }[];
 };
+
+export type RagChatRequest = {
+    question: string;
+    conversationId?: string;
+}
+
+export type RagChatResponse = {
+    answer: string;
+    sources: Array<{
+        articleId: string;
+        articleTitle: string;
+        relevantChunk: string;
+    }>;
+    conversationId: string;
+}

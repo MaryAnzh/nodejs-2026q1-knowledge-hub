@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, HttpCode, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpCode, Param, Post } from '@nestjs/common';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import { RagService } from './rag.service';
-import { RagSearchResponseType, ReindexRequestType, SearchResultType } from '../../types';
+import { RagChatRequest, RagChatResponse, RagSearchResponseType, ReindexRequestType, SearchResultType } from '../../types';
 
 @Controller('ai/rag')
 export class RagController {
@@ -17,6 +17,9 @@ export class RagController {
     @Post('search')
     @HttpCode(SC.OK) // 200
     async search(@Body() body: { query: string }): Promise<RagSearchResponseType> {
+        if (!body.query) {
+            throw new BadRequestException('query is required');
+        }
         const results = await this.rag.search(body.query);
         return {
             results
@@ -24,14 +27,17 @@ export class RagController {
     }
 
     @Post('chat')
-    @HttpCode(SC.OK) // 200
-    async chat(@Body() body: { query: string }) {
-        // todo
-        return this.rag.chat(body.query);
+    @HttpCode(SC.OK)
+    async chat(@Body() body: RagChatRequest): Promise<RagChatResponse> {
+        if (!body.question) {
+            throw new BadRequestException('Question is required');
+        }
+
+        return this.rag.chat(body.question, body.conversationId);
     }
 
     @Delete('index/articles/:articleId')
-    @HttpCode(SC.OK)
+    @HttpCode(SC.NO_CONTENT) // 204
     async deleteArticle(@Param('articleId') articleId: string) {
         return this.rag.deleteArticleVectors(articleId);
     }
