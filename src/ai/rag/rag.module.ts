@@ -7,9 +7,10 @@ import { ChunkService } from './chunk.service';
 import { VectorStoreService } from './vector-store.service';
 import { RagGeminiService } from './rag-gemini.service';
 import { AiModule } from '../ai.module';
+import { AppLoggerModule } from '../../logger/logger.module';
 
 @Module({
-    imports: [ConfigModule, AiModule],
+    imports: [ConfigModule, AiModule, AppLoggerModule],
     controllers: [RagController],
     providers: [RagService, ChunkService, RagGeminiService, VectorStoreService],
 })

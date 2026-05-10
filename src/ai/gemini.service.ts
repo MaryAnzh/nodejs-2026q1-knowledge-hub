@@ -170,8 +170,32 @@ export class GeminiService {
             );
 
             return data.embedding?.values ?? [];
-        } catch (err) {
-            this.logger.error(err, 'Embedding error');
+        } catch (error) {
+            const status = (error as GeminiErrType).response?.status;
+
+            if (status === 503) {
+                const m = `${this.model} ${C.PLEAS_TRY_LATER}`;
+                throw new HttpException(
+                    { message: m },
+                    StatusCodes.SERVICE_UNAVAILABLE,
+                );
+            }
+
+            if (status === 429) {
+                throw new HttpException(
+                    { message: C.RATE_LIMIT },
+                    StatusCodes.TOO_MANY_REQUESTS,
+                );
+            }
+
+            if (status === 400) {
+                throw new HttpException(
+                    { message: C.NOT_SUPPORTED_LOCATION },
+                    StatusCodes.BAD_REQUEST,
+                );
+            }
+
+            this.logger.error(error, 'Embedding error');
             throw new InternalServerErrorException('Embedding failed');
         }
     }
