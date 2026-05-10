@@ -13,4 +13,10 @@ import { AiModule } from '../ai.module';
     controllers: [RagController],
     providers: [RagService, ChunkService, RagGeminiService, VectorStoreService],
 })
-export class RagModule { }
+export class RagModule {
+    constructor(private readonly vectorStore: VectorStoreService) { }
+
+    async onModuleInit() {
+        await this.vectorStore.ensureCollection();
+    }
+}

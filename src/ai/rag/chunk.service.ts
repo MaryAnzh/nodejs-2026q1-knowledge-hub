@@ -1,23 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { chunkText } from './utils/chunk-text';
 
 @Injectable()
 export class ChunkService {
-    constructor(private config: ConfigService) { }
+    private readonly size: number;
+    private readonly overlap: number;
+
+    constructor(private readonly config: ConfigService) {
+        this.size = Number(this.config.get('RAG_CHUNK_SIZE') ?? 300);
+        this.overlap = Number(this.config.get('RAG_CHUNK_OVERLAP') ?? 50);
+    }
 
     chunk(text: string): string[] {
-        const size = Number(this.config.get('RAG_CHUNK_SIZE', 500));
-        const overlap = Number(this.config.get('RAG_CHUNK_OVERLAP', 50));
-
-        const chunks: string[] = [];
-        let start = 0;
-
-        while (start < text.length) {
-            const end = start + size;
-            chunks.push(text.slice(start, end));
-            start = end - overlap;
-        }
-
-        return chunks;
+        return chunkText(text, {
+            size: this.size,
+            overlap: this.overlap,
+        });
     }
 }

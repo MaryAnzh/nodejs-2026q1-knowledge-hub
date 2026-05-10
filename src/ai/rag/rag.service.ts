@@ -4,6 +4,9 @@ import { ChunkService } from './chunk.service';
 import { VectorStoreService } from './vector-store.service';
 import { randomUUID } from 'crypto';
 import { RagGeminiService } from './rag-gemini.service';
+import { ReindexRequestType } from '../../types';
+
+import * as C from '../../constants';
 
 @Injectable()
 export class RagService {
@@ -14,31 +17,38 @@ export class RagService {
         private vectorStore: VectorStoreService,
     ) { }
 
-    async indexAllArticles() {
+    async indexAllArticles({ onlyPublished = true, articleIds }: ReindexRequestType) {
         const articles = await this.prisma.article.findMany({
-            include: {
-                tags: true,
+            where: {
+                ...(onlyPublished ? { status: 'published' } : {}),
+                ...(articleIds ? { id: { in: articleIds } } : {}),
             },
-        })
-        for (const { id, title, status, tags, categoryId, content } of articles) {
-            await this.vectorStore.deleteByArticleId(id);
+            include: { tags: true },
+        });
 
-            const chunks = this.chunker.chunk(content);
+        let totalChunks = 0;
+
+        for (const article of articles) {
+            await this.vectorStore.deleteByArticleId(article.id);
+
+            const chunks = this.chunker.chunk(article.content);
+            totalChunks += chunks.length;
 
             const records = [];
+
             for (const chunk of chunks) {
                 const embedding = await this.gemini.embed(chunk);
 
                 records.push({
                     id: randomUUID(),
-                    articleId: id,
+                    articleId: article.id,
                     chunk,
                     embedding,
                     metadata: {
-                        title,
-                        status,
-                        categoryId,
-                        tags,
+                        title: article.title,
+                        status: article.status,
+                        categoryId: article.categoryId,
+                        tags: article.tags,
                     },
                 });
             }
@@ -46,7 +56,11 @@ export class RagService {
             await this.vectorStore.addMany(records);
         }
 
-        return { indexed: true };
+        return {
+            indexedArticles: articles.length,
+            indexedChunks: totalChunks,
+            vectorCollection: C.ARTICLES
+        };
     }
 
     async search(query: string) {
@@ -91,7 +105,7 @@ Answer:
 `;
 
         // gemini
-        const answer = await this.gemini.generate(prompt);
+        const answer = await this.gemini.embed(prompt);
 
         // 6. => answer
         return {

@@ -148,4 +148,31 @@ export class GeminiService {
 
         }
     }
+
+    async embed(text: string): Promise<number[]> {
+        try {
+            const model = this.config.get<string>('GEMINI_EMBEDDING_MODEL');
+
+            const { data }: any = await firstValueFrom(
+                this.http.post(
+                    `${this.baseUrl}/v1beta/models/${this.config.get('GEMINI_EMBEDDING_MODEL')}:embedContent`, {
+                    content: {
+                        parts: [{ text }],
+                    },
+                },
+                    {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-goog-api-key': this.apiKey,
+                        },
+                    }
+                )
+            );
+
+            return data.embedding?.values ?? [];
+        } catch (err) {
+            this.logger.error(err, 'Embedding error');
+            throw new InternalServerErrorException('Embedding failed');
+        }
+    }
 }

@@ -89,3 +89,13 @@ export type VectorRecordType = {
     embedding: number[];
     metadata: Record<string, any>;
 }
+
+export type ChunkConfigType = {
+    size: number;
+    overlap: number;
+}
+
+export type ReindexRequestType = {
+    onlyPublished?: boolean;
+    articleIds?: string[];
+}

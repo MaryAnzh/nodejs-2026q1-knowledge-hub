@@ -2,6 +2,7 @@ import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { StatusCodes as SC } from 'http-status-codes';
 
 import { RagService } from './rag.service';
+import { ReindexRequestType } from '../../types';
 
 @Controller('ai/rag')
 export class RagController {
@@ -9,8 +10,8 @@ export class RagController {
 
     @Post('index')
     @HttpCode(SC.OK) // 200
-    async index() {
-        return this.rag.indexAllArticles();
+    async index(@Body() body: ReindexRequestType) {
+        return this.rag.indexAllArticles(body);
     }
 
     @Post('search')
