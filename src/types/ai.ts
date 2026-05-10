@@ -130,3 +130,19 @@ export type RagChatResponse = {
     }>;
     conversationId: string;
 }
+
+export type FiltersType = keyof typeof C.ARTICLE_FILTERS;
+export type RagFilterType = {
+    must?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+    should?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+    must_not?: Array<{
+        key: FiltersType;
+        match: { value: string };
+    }>;
+};

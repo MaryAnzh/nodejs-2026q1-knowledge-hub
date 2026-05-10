@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, HttpCode, Param, Post } 
 import { StatusCodes as SC } from 'http-status-codes';
 
 import { RagService } from './rag.service';
-import { RagChatRequest, RagChatResponse, RagSearchResponseType, ReindexRequestType, SearchResultType } from '../../types';
+import { RagChatRequest, RagChatResponse, RagFilterType, RagSearchResponseType, ReindexRequestType, SearchResultType } from '../../types';
 
 @Controller('ai/rag')
 export class RagController {
@@ -16,11 +16,11 @@ export class RagController {
 
     @Post('search')
     @HttpCode(SC.OK) // 200
-    async search(@Body() body: { query: string }): Promise<RagSearchResponseType> {
+    async search(@Body() body: { query: string, filters?: RagFilterType }): Promise<RagSearchResponseType> {
         if (!body.query) {
             throw new BadRequestException('query is required');
         }
-        const results = await this.rag.search(body.query);
+        const results = await this.rag.search(body.query, body.filters);
         return {
             results
         };

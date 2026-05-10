@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { QdrantClient } from '@qdrant/js-client-rest';
 
-import { SearchResultType, VectorRecordType } from '../../types';
+import { RagFilterType, SearchResultType, VectorRecordType } from '../../types';
 import * as C from '../../constants';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class VectorStoreService {
-    private client: QdrantClient;
-    private collection: string;
+    private client?: QdrantClient;
+    private collection?: string;
 
     constructor(
         private readonly configService: ConfigService
@@ -47,11 +47,15 @@ export class VectorStoreService {
         });
     }
 
-    async searchByEmbedding(queryEmbedding: number[]): Promise<SearchResultType[]> {
+    async searchByEmbedding(
+        queryEmbedding: number[],
+        filters?: RagFilterType
+    ): Promise<SearchResultType[]> {
         const result = await this.client.search(this.collection, {
             vector: queryEmbedding,
             limit: 10,
             with_payload: true,
+            filter: filters,
         });
 
         return result.map((p: any) => ({

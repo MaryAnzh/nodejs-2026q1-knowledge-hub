@@ -76,3 +76,19 @@ model Tag {
 
   articles Article[] @relation("ArticleTags")
 }
+
+model Conversation {
+  id              String    @id @default(uuid())
+  createdAt       DateTime  @default(now())
+  maxHistorySize  Int       @default(5) // можно конфигурировать через .env
+  messages        Message[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // 'user' | 'assistant'
+  content        String
+  createdAt      DateTime     @default(now())
+}

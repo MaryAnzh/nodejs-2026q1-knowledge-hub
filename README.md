@@ -53,23 +53,26 @@ Node_js\hub_2> npm run test:rag
 > knowledge-hub@0.0.1 test:rag
 > cross-env TEST_MODE=auth jest --testPathPattern rag.e2e.spec.ts --noStackTrace --runInBand --verbose
 
- PASS  test/rag/rag.e2e.spec.ts (7.611 s)
+ PASS  test/rag/rag.e2e.spec.ts (8.782 s)
   chunkText
-    √ splits text into chunks with overlap (3 ms)
-    √ returns empty array for empty text (4 ms)
+    √ splits text into chunks with overlap (6 ms)
+    √ returns empty array for empty text (2 ms)
   RAG Index (e2e)
-    √ should index all articles according to spec (1754 ms)
-    √ should index all articles according to spec (1348 ms)
+    √ should index all articles according to spec (1741 ms)
+    √ should index all articles according to spec (1523 ms)
   RAG Search (e2e)
-    √ should return ranked chunks according to spec (522 ms)
-    √ Should return 400 if quary is empyt (28 ms)
+    √ should return ranked chunks according to spec (364 ms)
+    √ Should return 400 if quary is empyt (31 ms)
   RAG Delete Article Vectors (e2e)
-    √ should delete all vectors for a given articleId (1577 ms)
-    √ Should returen 404, if article not exist (26 ms)
+    √ should delete all vectors for a given articleId (1453 ms)
+    √ Should returen 404, if article not exist (20 ms)
   RAG Chat (e2e)
-    √ should return answer and sources according to spec (493 ms)
-    √ should return 400 if question is missing (24 ms)
+    √ should return answer and sources according to spec (428 ms)
+    √ should return 400 if question is missing (19 ms)
+  RAG Search with metadata (filters) (e2e)
+    √ should filter results by status and category (361 ms)
+  RAG Chat with memory (e2e)
+    √ should create a new conversation and save messages (781 ms)
 
 Test Suites: 1 passed, 1 total
-Tests:       10 passed, 10 total
-
+Tests:       12 passed, 12 total

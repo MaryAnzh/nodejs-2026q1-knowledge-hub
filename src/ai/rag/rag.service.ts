@@ -4,7 +4,7 @@ import { ChunkService } from './chunk.service';
 import { VectorStoreService } from './vector-store.service';
 import { randomUUID } from 'crypto';
 import { RagGeminiService } from './rag-gemini.service';
-import { RagChatResponse, RagSearchResponseType, ReindexRequestType } from '../../types';
+import { RagChatResponse, RagFilterType, RagSearchResponseType, ReindexRequestType } from '../../types';
 
 import * as C from '../../constants';
 
@@ -63,10 +63,10 @@ export class RagService {
         };
     }
 
-    async search(query: string): Promise<RagSearchResponseType['results']> {
+    async search(query: string, filters?: RagFilterType): Promise<RagSearchResponseType['results']> {
         const queryEmbedding = await this.gemini.embed(query);
 
-        const results = await this.vectorStore.searchByEmbedding(queryEmbedding);
+        const results = await this.vectorStore.searchByEmbedding(queryEmbedding, filters);
 
         return results.map(({ articleId, chunk, similarity, articleTitle }) => ({
             articleId,
@@ -77,16 +77,35 @@ export class RagService {
     }
 
     async chat(question: string, conversationId?: string): Promise<RagChatResponse> {
-        const queryEmbedding = await this.gemini.embed(question);
-
-        const chunks = await this.vectorStore.searchByEmbedding(queryEmbedding);
-
-        const topChunk = chunks[0]?.chunk ?? 'No relevant information found.';
-
         const convId = conversationId ?? crypto.randomUUID();
 
+        if (!conversationId) {
+            await this.prisma.conversation.create({
+                data: { id: convId, maxHistorySize: parseInt(process.env.RAG_MAX_HISTORY ?? '5') },
+            });
+        }
+
+        await this.prisma.message.create({
+            data: { conversationId: convId, role: 'user', content: question },
+        });
+
+        const queryEmbedding = await this.gemini.embed(question);
+        const chunks = await this.vectorStore.searchByEmbedding(queryEmbedding);
+
+        const answer = chunks[0]?.chunk ?? 'No relevant information found.';
+
+        await this.prisma.message.create({
+            data: { conversationId: convId, role: 'assistant', content: answer },
+        });
+
+        const history = await this.prisma.message.findMany({
+            where: { conversationId: convId },
+            orderBy: { createdAt: 'desc' },
+            take: parseInt(process.env.RAG_MAX_HISTORY ?? '5'),
+        });
+
         return {
-            answer: topChunk,
+            answer,
             sources: chunks.map(c => ({
                 articleId: c.articleId,
                 articleTitle: c.articleTitle,
