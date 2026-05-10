@@ -1,6 +1,10 @@
-import { PrismaClient, Role, ArticleStatus } from '@prisma/client';
+import 'dotenv/config';
+import { ArticleStatus, PrismaClient, Role } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+});
 
 async function main() {
   // Users
@@ -58,10 +62,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Fetch tags for relations
   const allTags = await prisma.tag.findMany();
-
-  // Fetch categories
   const tech = await prisma.category.findFirst({ where: { name: 'Tech' } });
   const science = await prisma.category.findFirst({ where: { name: 'Science' } });
   const lifestyle = await prisma.category.findFirst({ where: { name: 'Lifestyle' } });
@@ -70,7 +71,10 @@ async function main() {
   const article1 = await prisma.article.create({
     data: {
       title: 'Intro to Prisma',
-      content: 'Prisma is a modern ORM...',
+      content:
+        'Prisma is a modern ORM for Node.js and TypeScript. ' +
+        'It provides a type-safe client, migrations, and a declarative schema. ' +
+        'In this article we explore how to model data and interact with a PostgreSQL database using Prisma Client.',
       status: ArticleStatus.published,
       authorId: admin.id,
       categoryId: tech?.id,
@@ -80,11 +84,13 @@ async function main() {
     },
   });
 
-  // 2 — Draft (editor) — no comments
+  // 2 — Draft (editor)
   const article2 = await prisma.article.create({
     data: {
       title: 'Docker Basics',
-      content: 'Docker is a containerization tool...',
+      content:
+        'Docker is a containerization tool that allows you to package applications with all their dependencies. ' +
+        'It simplifies deployment and ensures consistent environments across development, staging, and production.',
       status: ArticleStatus.draft,
       authorId: editor.id,
       categoryId: tech?.id,
@@ -98,7 +104,10 @@ async function main() {
   const article3 = await prisma.article.create({
     data: {
       title: 'Node.js Basics',
-      content: 'Node.js is a JavaScript runtime...',
+      content:
+        'Node.js is a JavaScript runtime built on Chrome\'s V8 engine. ' +
+        'It enables server-side JavaScript and is widely used for building APIs and backend services. ' +
+        'In this article we cover the event loop, modules, and asynchronous programming.',
       status: ArticleStatus.published,
       authorId: editor2.id,
       categoryId: tech?.id,
@@ -112,7 +121,9 @@ async function main() {
   const article4 = await prisma.article.create({
     data: {
       title: 'Quantum Physics Overview',
-      content: 'Quantum physics explores the behavior of matter...',
+      content:
+        'Quantum physics explores the behavior of matter and energy at the smallest scales. ' +
+        'It introduces concepts such as superposition, entanglement, and wave-particle duality.',
       status: ArticleStatus.archived,
       authorId: editor2.id,
       categoryId: science?.id,
@@ -126,7 +137,9 @@ async function main() {
   const article5 = await prisma.article.create({
     data: {
       title: 'Healthy Lifestyle Tips',
-      content: 'A healthy lifestyle includes balanced nutrition...',
+      content:
+        'A healthy lifestyle includes balanced nutrition, regular physical activity, and sufficient sleep. ' +
+        'Small daily habits can have a big impact on long-term well-being.',
       status: ArticleStatus.published,
       authorId: editor.id,
       categoryId: lifestyle?.id,

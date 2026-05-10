@@ -29,7 +29,8 @@
     "test:watch": "jest --watch",
     "test:cov": "cross-env TEST_MODE=auth jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
